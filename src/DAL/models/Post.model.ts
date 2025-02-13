@@ -4,12 +4,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { User } from "./User.model";
+import { Comment } from "./Comment.model";
+import { Category } from "./Category.model";
 
 
 @Entity({ name: "posts" })
@@ -34,4 +36,13 @@ export class Post extends BaseEntity {
 
   @DeleteDateColumn({ type: "datetime" })
   deleted_at: Date;
+
+  @ManyToOne(() => User, (user) => user.posts)
+  user: User[];
+
+  @ManyToOne(() => Category, (category) => category.posts)
+  category: Category[];
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 }

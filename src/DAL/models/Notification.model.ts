@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, BaseEntity, UpdateDateColumn, DeleteDateColumn } from "typeorm";
+import { User } from "./User.model";
 
 @Entity({ name: "notifications" })
 export class Notification extends BaseEntity{
@@ -23,6 +24,6 @@ export class Notification extends BaseEntity{
   @DeleteDateColumn({ type: "datetime" })
   deleted_at: Date;
 
-//   @ManyToOne(() => User)
-//   recipient: User;
+  @ManyToOne(() => User)
+  recipient: User[];
 }

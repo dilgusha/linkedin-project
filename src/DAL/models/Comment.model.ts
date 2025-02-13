@@ -29,7 +29,7 @@ export class Comment extends BaseEntity {
   deleted_at: Date;
 
   @ManyToOne(() => User, (user) => user.posts)
-  user: User;
+  user: User[];
 
   @ManyToOne(() => Post, (post) => post.comments)
   post: Post[];

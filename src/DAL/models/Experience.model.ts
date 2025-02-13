@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
 } from "typeorm";
+import { User } from "./User.model";
 
 @Entity({ name: "experinces" })
 export class Experience extends BaseEntity {
@@ -40,4 +41,7 @@ export class Experience extends BaseEntity {
 
   @DeleteDateColumn({ type: "datetime" })
   deleted_at: Date;
+
+  @ManyToOne(() => User, (user) => user.experiences)
+  user: User[];
 }

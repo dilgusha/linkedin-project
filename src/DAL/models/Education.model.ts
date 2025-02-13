@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from "typeorm";
+import { User } from "./User.model";
 
 @Entity({ name: "educations" })
 export class Education extends BaseEntity{
@@ -28,4 +29,7 @@ export class Education extends BaseEntity{
 
   @DeleteDateColumn({ type: "datetime" })
   deleted_at: Date;
+
+  @ManyToOne(() => User, (user) => user.educations)
+  user: User[];
 }

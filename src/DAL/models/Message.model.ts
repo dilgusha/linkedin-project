@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
 } from "typeorm";
+import { User } from "./User.model";
 
 @Entity({ name: "messages" })
 export class Message extends BaseEntity {
@@ -26,9 +27,9 @@ export class Message extends BaseEntity {
   @DeleteDateColumn({ type: "datetime" })
   deleted_at: Date;
 
-  //   @ManyToOne(() => User)
-  //   sender: User;
+  @ManyToOne(() => User)
+  sender: User[];
 
-  //   @ManyToOne(() => User)
-  //   receiver: User;
+  @ManyToOne(() => User)
+  receiver: User[];
 }

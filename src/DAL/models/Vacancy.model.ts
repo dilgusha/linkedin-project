@@ -6,10 +6,12 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { User } from "./User.model";
 
 
 @Entity({ name: "vacancies" })
@@ -31,4 +33,7 @@ export class Vacancy extends BaseEntity {
 
   @DeleteDateColumn({ type: "datetime" })
   deleted_at: Date;
+
+    @ManyToOne(() => User, (user) => user.posts)
+    user: User[];
 }
