@@ -3,12 +3,13 @@ import { validate } from "class-validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { appConfig } from "../../consts";
-import { ERoleType, User } from "../../DAL/models/User.model";
-import { In } from "typeorm";
+import { User } from "../../DAL/models/User.model";
 import { AuthRequest } from "../../types";
-import { CreateUserDTO, EditUserDTO, verifyUserDTO } from "./user.dto";
+import { CreateUserDTO, EditUserDTO } from "./user.dto";
 import moment from "moment";
 import { transporter } from "../../helpers";
+import { v4 as uuidv4 } from "uuid";
+import { ERoleType } from "../../DAL/enum/user.enum";
 
 const registerUser = async (
   req: Request,
@@ -21,6 +22,8 @@ const registerUser = async (
       surname,
       gender,
       email,
+      role,
+      companyName,
       password,
       birthdate,
       profilePicture,
@@ -28,6 +31,11 @@ const registerUser = async (
       about,
       isVisibility,
     } = req.body;
+
+    if(role===ERoleType.ADMIN){
+      res.json("Error")
+      return
+    }
 
     const user = await User.findOne({ where: { email: email } });
     if (user) {
@@ -44,6 +52,8 @@ const registerUser = async (
     dto.email = email;
     dto.password = newPassword;
     dto.birthdate = birthdate;
+    dto.role = role;
+    dto.companyName = companyName;
     dto.profilePicture = profilePicture;
     dto.phone = phone;
     dto.about = about;
@@ -51,9 +61,14 @@ const registerUser = async (
 
     const errors = await validate(dto);
 
-    if (errors.length > 0) {
-      next(errors);
-      return;
+    if (errors.length > 0) {res.status(400).json({
+      message: "Validation failed",
+      errors: errors.reduce((response: any, item: any) => {
+        response[item.property] = Object.keys(item.constraints);
+        return response;
+      }, {}),
+    });
+    return;
     }
 
     const newUser = User.create({
@@ -61,6 +76,7 @@ const registerUser = async (
       surname,
       gender,
       email,
+      role,
       password: newPassword,
       birthdate,
       profilePicture,
@@ -68,7 +84,12 @@ const registerUser = async (
       about,
       isVisibility,
     });
-    const savedUser = await newUser.save();
+
+    await newUser.save();
+
+    if (role === ERoleType.COMPANY) {
+      newUser.companyName = companyName;
+    }
 
     const Data = await User.findOne({
       where: { email },
@@ -91,6 +112,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   const user = await User.findOne({
     where: { email: email },
   });
+
   if (!user) {
     res.status(401).json({ message: "Email ve ya shifre sehvdir!" });
     return;
@@ -170,11 +192,7 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const checkVerifyCode = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const checkVerifyCode = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
 
@@ -283,13 +301,7 @@ const userEdit = async (
 
     const updatedData = await User.findOne({
       where: { id },
-      select: [
-        "id",
-        "name",
-        "surname",
-        "email",
-        "updated_at",
-      ],
+      select: ["id", "name", "surname", "email", "updated_at"],
     });
 
     res.json({
@@ -304,24 +316,100 @@ const userEdit = async (
   }
 };
 
-const userDelete = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-const user = req.user;
-  
-      if (!user) {
-        res.json("Bele bir user yoxdur");
-        return;
-      }
-  
-      //await User.softRemove(user);
-  
-      res.json({ message: "User uğurla silindi!" });
+const userDelete = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user;
 
-} catch (error) {
-  console.error('Error removing user:', error);
-  res.status(500).json('An error occurred while removing the user.');
+    if (!user) {
+      res.json("Bele bir user yoxdur");
+      return;
     }
+
+    user.softRemove();
+
+    res.json({ message: "User uğurla silindi!" });
+  } catch (error) {
+    console.error("Error removing user:", error);
+    res.status(500).json("An error occurred while removing the user.");
+  }
+};
+
+const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
+  const user = await User.findOne({
+    where: { email: req.body.email },
+  });
+
+  if (!user) {
+    return res.status(401).json({
+      message: "Belə bir istifadəçi yoxdur",
+    });
+  }
+
+  const token = uuidv4();
+  const resetExpiredIn = moment()
+    .add(appConfig.VALIDITY_MINUTE_MAIL, "minutes")
+    .toDate();
+
+  user.uuidToken = token;
+  user.resetExpiredIn = resetExpiredIn;
+
+  await user.save();
+
+  res.json("Check your email");
+
+  const resetUrl = `${appConfig.CREATE_PASS_URL}${token}`;
+
+  const mailOptions = {
+    from: appConfig.EMAIL,
+    to: req.body.email,
+    subject: "Password Reset Request",
+    html: `<h3>Password Reset</h3>
+               <p>To reset your password, click the link below:</p>
+               <a href="${resetUrl}">Reset Password</a>
+               <p>This link is valid for ${appConfig.VALIDITY_MINUTE_MAIL} minute.</p>`,
   };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).json({ message: "Error sending email", error });
+    }
+    return res
+      .status(200)
+      .json({ message: "Password reset email sent successfully." });
+  });
+};
+
+const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
+  const { newPassword } = req.body;
+
+  const user = await User.findOne({
+    where: { uuidToken: req.params.uuidToken },
+  });
+
+  if (!user || !newPassword) {
+    return res.status(401).json({
+      message: "Token və ya password yoxdur",
+    });
+  }
+
+  if (user.resetExpiredIn.getTime() < Date.now()) {
+    return res.status(401).json({
+      message: "Artıq vaxt bitib, yenidən cəhd edin!!!",
+    });
+  }
+
+  const ValidPassword = await bcrypt.compare(newPassword, user.password);
+
+  if (ValidPassword) return res.json("Əvvəlki parolu yaza bilməzsiniz");
+
+  const password = await bcrypt.hash(newPassword, 10);
+
+  user.password = password;
+  user.uuidToken = "";
+
+  await user.save();
+  res.send(`${user.email} mailinin password-ü yeniləndi`);
+};
 
 export const UserController = () => ({
   registerUser,

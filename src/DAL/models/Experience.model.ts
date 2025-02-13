@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  BaseEntity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "./User.model";
+import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "experinces" })
-export class Experience extends BaseEntity {
+export class Experience extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,15 +24,6 @@ export class Experience extends BaseEntity {
 
   @Column({ nullable: true })
   description: string;
-
-  @CreateDateColumn({ type: "datetime" })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: "datetime" })
-  updated_at: Date;
-
-  @DeleteDateColumn({ type: "datetime" })
-  deleted_at: Date;
 
   @ManyToOne(() => User, (user) => user.experiences)
   user: User[];

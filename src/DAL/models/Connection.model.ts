@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, BaseEntity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne  } from "typeorm";
 import { User } from "./User.model";
-
+import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "connections" })
-export class Connection extends BaseEntity {
+export class Connection extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

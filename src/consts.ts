@@ -4,17 +4,12 @@ export const appConfig = {
     EMAIL: process.env.EMAIL,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
     VALIDITY_MINUTE_MAIL: 5,
-    CLIENT_BASE_URL: process.env.CLIENT_BASE_URL,
+    CREATE_PASS_URL: process.env.CREATE_PASS_URL,
     VERIFY_URL: process.env.VERIFY_URL,
-  };
-  
-  export const error = {
-    422: "Validasiya Xətası!",
-    409: "Bu istifadəçi artıq mövcuddur!",
-    500: "Server xətası!",
-    404: "Bu istifadəçi tapılmadı",
-    403: "İcazəniz yoxdur",
-    400: "Səhv sorğu! Tələb olunan məlumat çatışmır və ya yanlışdır.",
-    401: "Doğrulama xətası! Giriş etibarsızdır və ya parol yanlışdır.",
+    MY_SQL_PORT: process.env.MY_SQL_PORT,
+    LOCALHOST: process.env.LOCALHOST,
+    USERNAME: process.env.USERNAME,
+    MY_SQL_PASSWORD: process.env.MY_SQL_PASSWORD,
+    MY_SQL_DATABASE:process.env.MY_SQL_DATABASE
   };
   

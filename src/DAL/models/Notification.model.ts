@@ -1,28 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, BaseEntity, UpdateDateColumn, DeleteDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "./User.model";
+import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "notifications" })
-export class Notification extends BaseEntity{
+export class Notification extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  type: string; 
+  type: string;
 
   @Column()
   message: string;
 
   @Column({ default: false })
   isRead: boolean;
-
-  @CreateDateColumn({ type: "datetime" })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: "datetime" })
-  updated_at: Date;
-
-  @DeleteDateColumn({ type: "datetime" })
-  deleted_at: Date;
 
   @ManyToOne(() => User)
   recipient: User[];

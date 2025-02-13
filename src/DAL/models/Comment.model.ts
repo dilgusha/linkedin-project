@@ -1,32 +1,15 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-  BaseEntity,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "./User.model";
 import { Post } from "./Post.model";
+import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "comments" })
-export class Comment extends BaseEntity {
+export class Comment extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   content: string;
-
-  @CreateDateColumn({ type: "datetime" })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: "datetime" })
-  updated_at: Date;
-
-  @DeleteDateColumn({ type: "datetime" })
-  deleted_at: Date;
 
   @ManyToOne(() => User, (user) => user.posts)
   user: User[];

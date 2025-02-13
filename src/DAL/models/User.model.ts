@@ -1,39 +1,14 @@
-import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Experience } from "./Experience.model";
 import { Education } from "./Education.model";
 import { Post } from "./Post.model";
 import { Connection } from "./Connection.model";
 import { Vacancy } from "./Vacancy.model";
-
-export enum ERoleType {
-  USER = "USER",
-  ADMIN = "ADMIN",
-  COMPANY = "COMPANY",
-}
-export enum EGenderType {
-  MAN = "MAN",
-  WOMAN = "WOMAN",
-  OTHER = "OTHER",
-}
-
-export enum EStatusType {
-  ACTIVE = "ACTIVE",
-  DEACTIVE = "DEACTIVE",
-}
+import { CommonEntity } from "./Common.model";
+import { EGenderType, ERoleType, EStatusType } from "../enum/user.enum";
 
 @Entity({ name: "users" })
-export class User extends BaseEntity {
+export class User extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -62,7 +37,7 @@ export class User extends BaseEntity {
   @Column({ type: "boolean" })
   isVerified: boolean;
 
- @Column({ type: "datetime" })
+  @Column({ type: "datetime" })
   verifyExpiredIn: Date;
 
   @Column({
@@ -75,8 +50,11 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   profilePicture: string;
 
-  @Column({ type: "text"})
+  @Column({ type: "text" })
   about: string;
+
+  @Column({ type: "varchar", length: 150 })
+  companyName: string;
 
   @Column({ type: "datetime" })
   birthdate: Date;
@@ -94,14 +72,11 @@ export class User extends BaseEntity {
   @Column({ type: "boolean", default: false })
   isVisibility: boolean;
 
-  @CreateDateColumn({ type: "datetime" })
-  created_at: Date;
+  @Column({ type: "varchar" })
+  uuidToken: String;
 
-  @UpdateDateColumn({ type: "datetime" })
-  updated_at: Date;
-
-  @DeleteDateColumn({ type: "datetime" })
-  deleted_at: Date;
+  @Column({ type: "varchar" })
+  resetExpiredIn: Date;
 
   @OneToMany(() => Experience, (experience) => experience.user)
   experiences: Experience[];

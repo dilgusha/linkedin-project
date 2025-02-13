@@ -1,9 +1,9 @@
 import {
-    IsBoolean,
+  IsBoolean,
   IsDate,
   IsDefined,
   IsEmail,
-  IsNumber,
+  IsEnum,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -11,6 +11,7 @@ import {
   MaxLength,
   MinLength,
 } from "class-validator";
+import { ERoleType } from "../../DAL/enum/user.enum";
 
 export class CreateUserDTO {
   @IsDefined({ message: "Name is required" })
@@ -43,8 +44,12 @@ export class CreateUserDTO {
   birthdate: Date;
 
   @IsOptional()
+  @IsEnum(ERoleType)
+  role: ERoleType;
+
+  @IsOptional()
   @IsString()
-    profilePicture: string;
+  profilePicture: string;
 
   @IsDefined()
   @IsPhoneNumber()
@@ -58,67 +63,70 @@ export class CreateUserDTO {
   about: string;
 
   @IsOptional()
+  @IsString()
+  companyName: string;
+
+  @IsOptional()
   @IsBoolean()
-  isVisibility: boolean;  
+  isVisibility: boolean;
 }
 
 export class EditUserDTO {
-    @IsOptional({ message: "Name is required" })
-    @IsString()
-    @MaxLength(25, { message: "Name is too long" })
-    @MinLength(3, { message: "En az 3 simvol olmalidir" })
-    name: string;
-  
-    @IsOptional()
-    @IsString()
-    @MaxLength(50)
-    surname: string;
-  
-    @IsOptional()
-    @IsString()
-    gender: string;
-  
-    @IsOptional()
-    @IsEmail({}, { message: "Email düzgün formatda olmalıdır." })
-    email: string;
-  
-    @IsOptional()
-    @IsString()
-    @MaxLength(15)
-    @MinLength(8)
-    password: string;
-  
-    @IsOptional()
-    @IsDate()
-    birthdate: Date;
-  
-    @IsOptional()
-    @IsPhoneNumber()
-    @Matches(/^\+994\d{9}$/, {
-      message: "Phone number must be in +994XXXXXXXXX format",
-    })
-    phone: string;
-  
-    @IsOptional()
-    @IsString()
-    about: string;
+  @IsOptional({ message: "Name is required" })
+  @IsString()
+  @MaxLength(25, { message: "Name is too long" })
+  @MinLength(3, { message: "En az 3 simvol olmalidir" })
+  name: string;
 
-    @IsOptional()
-    @IsBoolean()
-    isVisibility: boolean;  
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  surname: string;
+
+  @IsOptional()
+  @IsString()
+  gender: string;
+
+  @IsOptional()
+  @IsEmail({}, { message: "Email düzgün formatda olmalıdır." })
+  email: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(15)
+  @MinLength(8)
+  password: string;
+
+  @IsOptional()
+  @IsDate()
+  birthdate: Date;
+
+  @IsOptional()
+  @IsPhoneNumber()
+  @Matches(/^\+994\d{9}$/, {
+    message: "Phone number must be in +994XXXXXXXXX format",
+  })
+  phone: string;
+
+  @IsOptional()
+  @IsString()
+  about: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isVisibility: boolean;
 }
 
-export class  verifyUserDTO{
-    @IsDefined()
-    @IsNumber()
-    verifyCode: number;
+// export class  verifyUserDTO{
+//     @IsDefined()
+//     @IsNumber()
+//     verifyCode: number;
 
-    @IsDefined()
-    @IsDate()
-    verifyExpiredIn:Date
+//     @IsDefined()
+//     @IsDate()
+//     verifyExpiredIn:Date
 
-    @IsDefined()
-    @IsBoolean()
-    isVerified: boolean;  
-}
-
+//     @IsDefined()
+//     @IsBoolean()
+//     isVerified: boolean;
+// }

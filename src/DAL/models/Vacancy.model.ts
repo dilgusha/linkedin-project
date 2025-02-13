@@ -1,39 +1,18 @@
-import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User.model";
-
+import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "vacancies" })
-export class Vacancy extends BaseEntity {
+export class Vacancy extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: "int" })
   ViewCount: number;
-  
+
   @Column({ type: "text" })
   description: string;
 
-  @CreateDateColumn({ type: "datetime" })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: "datetime" })
-  updated_at: Date;
-
-  @DeleteDateColumn({ type: "datetime" })
-  deleted_at: Date;
-
-    @ManyToOne(() => User, (user) => user.posts)
-    user: User[];
+  @ManyToOne(() => User, (user) => user.posts)
+  user: User[];
 }

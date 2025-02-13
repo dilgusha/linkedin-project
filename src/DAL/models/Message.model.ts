@@ -1,31 +1,14 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-  BaseEntity,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "./User.model";
+import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "messages" })
-export class Message extends BaseEntity {
+export class Message extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   content: string;
-
-  @CreateDateColumn({ type: "datetime" })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: "datetime" })
-  updated_at: Date;
-
-  @DeleteDateColumn({ type: "datetime" })
-  deleted_at: Date;
 
   @ManyToOne(() => User)
   sender: User[];

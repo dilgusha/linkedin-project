@@ -1,35 +1,17 @@
-import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Post } from "./Post.model";
-
+import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "categories" })
-export class Category extends BaseEntity {
+export class Category extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: "varchar", length: 150 })
   name: string;
 
-  @Column({ type: "text"})
+  @Column({ type: "text" })
   description: string;
-
-  @CreateDateColumn({ type: "datetime" })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: "datetime" })
-  updated_at: Date;
-
-  @DeleteDateColumn({ type: "datetime" })
-  deleted_at: Date;
 
   @OneToMany(() => Post, (post) => post.category)
   posts: Post[];
