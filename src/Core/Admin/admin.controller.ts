@@ -62,7 +62,6 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
           return response;
         }, {}),
       });
-      return;
     }
 
     const newUser = User.create({
@@ -120,7 +119,7 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
       ],
     });
 
-    res.status(201).json({ data });
+    //res.status(201).json({ data });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -218,17 +217,17 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error("Error sending email: ", error);
-        return res.status(500).json({
+       res.status(500).json({
           message: error.message,
           error,
         });
       } else {
         console.log("Email sent: ", info);
-        return res.json({ message: "Check your email" });
+       res.json({ message: "Check your email" });
       }
     });
 
-    res.status(201).json({ updatedData });
+    //res.status(201).json({ updatedData });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",

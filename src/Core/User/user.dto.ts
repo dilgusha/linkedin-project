@@ -35,12 +35,11 @@ export class CreateUserDTO {
 
   @IsDefined()
   @IsString()
-  @MaxLength(15)
   @MinLength(8)
+  // @MaxLength(15)
   password: string;
 
   @IsDefined()
-  @IsDate()
   birthdate: Date;
 
   @IsOptional()
@@ -102,7 +101,6 @@ export class EditUserDTO {
   companyName: string;
 
   @IsOptional()
-  @IsDate()
   birthdate: Date;
 
   @IsOptional()

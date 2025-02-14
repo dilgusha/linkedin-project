@@ -1,13 +1,12 @@
 import { DataSource } from "typeorm";
-import { appConfig } from "../../consts";
 
 export const AppDataSource = new DataSource({
   type: "mysql",
-  host: appConfig.LOCALHOST,
-  port: Number(appConfig.MY_SQL_PORT),
-  username: appConfig.USERNAME,
-  password: appConfig.MY_SQL_PASSWORD,
-  database: appConfig.MY_SQL_DATABASE,
+  host: "localhost",
+  port: 3306,
+  username: "root",
+  password: "",
+  database: "linkedin_project",
   entities: ['src/DAL/models/**/*.ts'],
   subscribers: [],
   migrations: [],

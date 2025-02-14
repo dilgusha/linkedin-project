@@ -400,6 +400,23 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
     where: { uuidToken: req.params.uuidToken },
   });
 
+
+  const dto = new CreateUserDTO();
+  dto.password = newPassword;
+
+  const errors = await validate(dto);
+
+  if (errors.length > 0) {
+    res.status(400).json({
+      message: "Validation failed",
+      errors: errors.reduce((response: any, item: any) => {
+        response[item.property] = Object.keys(item.constraints);
+        return response;
+      }, {}),
+    });
+    return;
+  }  
+
   if (!user || !newPassword) {
     res.status(401).json({
       message: "Token və ya password yoxdur",
