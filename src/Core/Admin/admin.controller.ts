@@ -8,6 +8,7 @@ import { EditUserByAdminDTO } from "./admin.dto";
 import { In } from "typeorm";
 import { ERoleType } from "../../DAL/enum/user.enum";
 import { CreateUserDTO } from "../User/user.dto";
+import { formatErrors } from "../../DAL/middlewares/error.middleware";
 
 const userCreate = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -55,13 +56,8 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json({
-        message: "Validation failed",
-        errors: errors.reduce((response: any, item: any) => {
-          response[item.property] = Object.keys(item.constraints);
-          return response;
-        }, {}),
-      });
+      res.status(400).json(formatErrors(errors));
+      return
     }
 
     const newUser = User.create({
@@ -176,13 +172,7 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json({
-        message: "Validation failed",
-        errors: errors.reduce((response: any, item: any) => {
-          response[item.property] = Object.keys(item.constraints);
-          return response;
-        }, {}),
-      });
+      res.status(400).json(formatErrors(errors));
       return;
     }
     await User.update(id, {

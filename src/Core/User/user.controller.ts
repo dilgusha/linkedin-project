@@ -11,6 +11,7 @@ import { transporter } from "../../helpers";
 import { v4 as uuidv4 } from "uuid";
 import { ERoleType } from "../../DAL/enum/user.enum";
 import { Vacancy } from "../../DAL/models/Vacancy.model";
+import { formatErrors } from "../../DAL/middlewares/error.middleware";
 
 const register = async (
   req: Request,
@@ -63,13 +64,7 @@ const register = async (
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json({
-        message: "Validation failed",
-        errors: errors.reduce((response: any, item: any) => {
-          response[item.property] = Object.keys(item.constraints);
-          return response;
-        }, {}),
-      });
+      res.status(400).json(formatErrors(errors));
       return;
     }
 
@@ -282,13 +277,7 @@ const userEdit = async (
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json({
-        message: "Validation failed",
-        errors: errors.reduce((response: any, item: any) => {
-          response[item.property] = Object.keys(item.constraints);
-          return response;
-        }, {}),
-      });
+      res.status(400).json(formatErrors(errors));
       return;
     }
 
@@ -407,13 +396,7 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   const errors = await validate(dto);
 
   if (errors.length > 0) {
-    res.status(400).json({
-      message: "Validation failed",
-      errors: errors.reduce((response: any, item: any) => {
-        response[item.property] = Object.keys(item.constraints);
-        return response;
-      }, {}),
-    });
+    res.status(400).json(formatErrors(errors));
     return;
   }  
 
