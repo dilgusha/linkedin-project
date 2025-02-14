@@ -4,11 +4,8 @@ import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "experinces" })
 export class Experience extends CommonEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column()
-  title: string;
+  category: string;
 
   @Column()
   company: string;

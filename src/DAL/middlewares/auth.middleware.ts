@@ -4,7 +4,6 @@ import { NextFunction, Request, Response } from "express";
 import { appConfig } from "../../consts";
 import { User } from "../models/User.model"; 
 import { AuthRequest } from "../../types";
-import { EStatusType } from "../enum/user.enum";
 
 export const useAuth = async (
   req: AuthRequest,
@@ -66,11 +65,6 @@ export const roleCheck = (roles: string[]): any => {
 
     if (!roles.includes(user.role)) {
       res.status(403).json({ message: "İcazəniz yoxdur!" });
-      return;
-    }
-
-    if (user.status === EStatusType.DEACTIVE) {
-      res.json("Siz active user deyilsiniz!!!");
       return;
     }
 

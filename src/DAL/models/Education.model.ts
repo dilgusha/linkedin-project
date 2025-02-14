@@ -1,20 +1,22 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "./User.model";
 import { CommonEntity } from "./Common.model";
+import { EDegreeType } from "../enum/user.enum";
 
 @Entity({ name: "educations" })
 export class Education extends CommonEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column({ type: "varchar", length: 100 })
-  school: string;
+  schoolName: string;
 
-  @Column({ type: "varchar", length: 150 })
-  degree: string;
+  @Column({
+    type: "enum",
+    enum: EDegreeType,
+    default: EDegreeType.OTHER,
+  })
+  degree: EDegreeType;
 
   @Column()
-  fieldOfStudy: string;
+  faculty: string;
 
   @Column()
   startDate: Date;

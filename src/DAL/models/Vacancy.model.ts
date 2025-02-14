@@ -4,11 +4,8 @@ import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "vacancies" })
 export class Vacancy extends CommonEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column({ type: "int" })
-  ViewCount: number;
+  viewCount: number;
 
   @Column({ type: "text" })
   description: string;

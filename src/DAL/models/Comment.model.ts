@@ -5,9 +5,6 @@ import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "comments" })
 export class Comment extends CommonEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column()
   content: string;
 

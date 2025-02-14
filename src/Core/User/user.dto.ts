@@ -48,7 +48,7 @@ export class CreateUserDTO {
 
   @IsOptional()
   @IsString()
-  profilePicture: string;
+  avatar_path: string;
 
   @IsDefined()
   @IsPhoneNumber()

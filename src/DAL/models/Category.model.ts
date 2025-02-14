@@ -4,8 +4,6 @@ import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "categories" })
 export class Category extends CommonEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
 
   @Column({ type: "varchar", length: 150 })
   name: string;

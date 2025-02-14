@@ -4,10 +4,9 @@ import { appConfig } from "../../consts";
 import { User } from "../../DAL/models/User.model";
 import { validate } from "class-validator";
 import { transporter } from "../../helpers";
-import { EditUserByAdminDTO } from "./admin.dto";
+import { CreateUserByAdminDTO, EditUserByAdminDTO } from "./admin.dto";
 import { In } from "typeorm";
 import { ERoleType } from "../../DAL/enum/user.enum";
-import { CreateUserDTO } from "../User/user.dto";
 import { formatErrors } from "../../DAL/middlewares/error.middleware";
 
 const userCreate = async (req: Request, res: Response, next: NextFunction) => {
@@ -40,7 +39,7 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
 
     const newPassword = await bcrypt.hash(password, 10);
 
-    const dto = new CreateUserDTO();
+    const dto = new CreateUserByAdminDTO();
     dto.name = name;
     dto.surname = surname;
     dto.gender = gender;
@@ -79,6 +78,18 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
         newUser.companyName = companyName;
       }
 
+      const data = await User.findOne({
+        where: { email },
+        select: [
+          "id",
+          "name",
+          "surname",
+          "email",
+          "role",
+          "created_at",
+        ],
+      });
+
     const mailOptions = {
       from: appConfig.EMAIL,
       to: email,
@@ -94,28 +105,17 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
             </ul>`,
     };
 
+
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         res.json("Error sending email");
         return;
       } else {
         console.log("Email sent: ", info);
+        res.status(201).json({ data });
       }
     });
 
-    const data = await User.findOne({
-      where: { email },
-      select: [
-        "id",
-        "name",
-        "surname",
-        "email",
-        "role",
-        "created_at",
-      ],
-    });
-
-    //res.status(201).json({ data });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -126,7 +126,7 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
 
 const userEdit = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { role, status } = req.body;
+    const { role } = req.body;
     const id = Number(req.params.id);
 
     const user = await User.findOne({
@@ -137,7 +137,6 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
         "surname",
         "email",
         "role",
-        "status",
         "created_at",
       ],
     });
@@ -152,13 +151,12 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
       throw error;
     }
 
-    if (!status && !role) {
+    if ( !role) {
       res.json("Hech bir deyishiklik yoxdur");
       return;
     }
 
     if (
-      user.status === (status || undefined) ||
       user.role === (role || undefined)
     ) {
       res.json("Hech bir deyishiklik yoxdur");
@@ -167,7 +165,6 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
 
     const dto = new EditUserByAdminDTO();
     dto.role = role;
-    dto.status = status;
 
     const errors = await validate(dto);
 
@@ -177,7 +174,6 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
     }
     await User.update(id, {
       role,
-      status,
     });
 
     const updatedData = await User.findOne({
@@ -187,7 +183,6 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
         "name",
         "surname",
         "email",
-        "status",
         "role",
         "created_at",
         "updated_at",
@@ -217,7 +212,7 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
       }
     });
 
-    //res.status(201).json({ updatedData });
+   // res.status(201).json({ updatedData });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",

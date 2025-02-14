@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 export const appConfig = {
     PORT: process.env.PORT,
     JWT_SECRET: process.env.JWT_SECRET,

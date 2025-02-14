@@ -3,7 +3,6 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User.model";
 import { Comment } from "./Comment.model";
@@ -12,9 +11,6 @@ import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "posts" })
 export class Post extends CommonEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column({ type: "int" })
   likeCount: number;
 

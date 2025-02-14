@@ -5,7 +5,7 @@ import { Post } from "./Post.model";
 import { Connection } from "./Connection.model";
 import { Vacancy } from "./Vacancy.model";
 import { CommonEntity } from "./Common.model";
-import { EGenderType, ERoleType, EStatusType } from "../enum/user.enum";
+import { EGenderType, ERoleType } from "../enum/user.enum";
 
 @Entity({ name: "users" })
 export class User extends CommonEntity {
@@ -28,7 +28,7 @@ export class User extends CommonEntity {
   @Column({ type: "varchar", length: 150 })
   email: string;
 
-  @Column({ type: "varchar", length: 100 })
+  @Column({ type: "varchar", length: 35 })
   password: string;
 
   @Column({ type: "int" })
@@ -48,7 +48,7 @@ export class User extends CommonEntity {
   role: ERoleType;
 
   @Column({ nullable: true })
-  profilePicture: string;
+  avatar_path: string;
 
   @Column({ type: "text" })
   about: string;
@@ -62,18 +62,11 @@ export class User extends CommonEntity {
   @Column({ type: "varchar" })
   phone: string;
 
-  @Column({
-    type: "enum",
-    enum: EStatusType,
-    default: EStatusType.ACTIVE,
-  })
-  status: EStatusType;
-
   @Column({ type: "boolean", default: false })
   isVisibility: boolean;
 
   @Column({ type: "varchar" })
-  uuidToken: String;
+  passToken: String;
 
   @Column({ type: "varchar" })
   resetExpiredIn: Date;
@@ -88,7 +81,7 @@ export class User extends CommonEntity {
   posts: Post[];
 
   @OneToMany(() => Connection, (connection) => connection.user)
-  connections: Connection[];
+  connections: User[];
 
   @ManyToMany(() => Vacancy, (vacancy) => vacancy.appliedUsers)
   @JoinTable()

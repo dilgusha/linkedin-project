@@ -3,13 +3,18 @@ export enum ERoleType {
   ADMIN = "ADMIN",
   COMPANY = "COMPANY",
 }
+
 export enum EGenderType {
   MAN = "MAN",
   WOMAN = "WOMAN",
   OTHER = "OTHER",
 }
 
-export enum EStatusType {
-  ACTIVE = "ACTIVE",
-  DEACTIVE = "DEACTIVE",
+export enum EDegreeType {
+  HIGH_SCHOOL = "High School",
+  ASSOCIATE = "Associate Degree",
+  BACHELOR = "Bachelor's Degree",
+  MASTER = "Master's Degree",
+  DOCTORATE = "Doctorate",
+  OTHER = "Other",
 }

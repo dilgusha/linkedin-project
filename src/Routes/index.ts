@@ -10,9 +10,11 @@ import { commentRoutes } from "../Core/Comment/comment.route";
 import { connectionRoutes } from "../Core/Connection/connection.route";
 import { messageRoutes } from "../Core/Message/message.route";
 import { notificationRoutes } from "../Core/Notification/notification.route";
+import { authRoutes } from "../Core/Auth/auth.route";
 
 export const v1Routes = Router();
 
+v1Routes.use("/auth", authRoutes);
 v1Routes.use("/admin", adminRoutes);
 v1Routes.use("/user", userRoutes);
 v1Routes.use("/vacancy", vacancyRoutes);
