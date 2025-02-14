@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Experience } from "./Experience.model";
 import { Education } from "./Education.model";
 import { Post } from "./Post.model";
@@ -90,6 +90,7 @@ export class User extends CommonEntity {
   @OneToMany(() => Connection, (connection) => connection.user)
   connections: Connection[];
 
-  @OneToMany(() => Vacancy, (vacancy) => vacancy.user)
-  vacancies: Vacancy[];
+  @ManyToMany(() => Vacancy, (vacancy) => vacancy.appliedUsers)
+  @JoinTable()
+  appliedVacancies: Vacancy[];
 }

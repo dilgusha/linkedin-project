@@ -96,6 +96,10 @@ export class EditUserDTO {
   @MaxLength(15)
   @MinLength(8)
   password: string;
+  
+  @IsOptional()
+  @IsString()
+  companyName: string;
 
   @IsOptional()
   @IsDate()

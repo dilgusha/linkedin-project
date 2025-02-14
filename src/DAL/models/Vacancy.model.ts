@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User.model";
 import { CommonEntity } from "./Common.model";
 
@@ -13,6 +13,6 @@ export class Vacancy extends CommonEntity {
   @Column({ type: "text" })
   description: string;
 
-  @ManyToOne(() => User, (user) => user.posts)
-  user: User[];
+  @ManyToMany(() => User, (user) => user.appliedVacancies)
+  appliedUsers: User[];
 }

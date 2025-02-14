@@ -10,8 +10,9 @@ import moment from "moment";
 import { transporter } from "../../helpers";
 import { v4 as uuidv4 } from "uuid";
 import { ERoleType } from "../../DAL/enum/user.enum";
+import { Vacancy } from "../../DAL/models/Vacancy.model";
 
-const registerUser = async (
+const register = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -32,9 +33,9 @@ const registerUser = async (
       isVisibility,
     } = req.body;
 
-    if(role===ERoleType.ADMIN){
-      res.json("Error")
-      return
+    if (role === ERoleType.ADMIN) {
+      res.json("Error");
+      return;
     }
 
     const user = await User.findOne({ where: { email: email } });
@@ -61,14 +62,15 @@ const registerUser = async (
 
     const errors = await validate(dto);
 
-    if (errors.length > 0) {res.status(400).json({
-      message: "Validation failed",
-      errors: errors.reduce((response: any, item: any) => {
-        response[item.property] = Object.keys(item.constraints);
-        return response;
-      }, {}),
-    });
-    return;
+    if (errors.length > 0) {
+      res.status(400).json({
+        message: "Validation failed",
+        errors: errors.reduce((response: any, item: any) => {
+          response[item.property] = Object.keys(item.constraints);
+          return response;
+        }, {}),
+      });
+      return;
     }
 
     const newUser = User.create({
@@ -85,11 +87,11 @@ const registerUser = async (
       isVisibility,
     });
 
-    await newUser.save();
-
     if (role === ERoleType.COMPANY) {
       newUser.companyName = companyName;
     }
+
+    await newUser.save();
 
     const Data = await User.findOne({
       where: { email },
@@ -142,7 +144,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-const verifyEmail = async (req: AuthRequest, res: Response) => {
+const checkEmail = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
 
@@ -152,8 +154,10 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
     }
     const email = user.email;
 
-    if (user.isVerified === true)
-      return res.json({ message: "Email is already verified" });
+    if (user.isVerified === true) {
+      res.json({ message: "Email is already verified" });
+      return;
+    }
 
     const verifyCode = Math.floor(100000 + Math.random() * 600000);
 
@@ -176,12 +180,12 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error("Error sending email: ", error);
-        return res.status(500).json({
+        res.status(500).json({
           message: error.message,
           error,
         });
       } else {
-        return res.json({ message: "Check your email" });
+        res.json({ message: "Check your email" });
       }
     });
   } catch (error) {
@@ -192,7 +196,7 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const checkVerifyCode = async (req: AuthRequest, res: Response) => {
+const verifyEmail = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
 
@@ -204,9 +208,10 @@ const checkVerifyCode = async (req: AuthRequest, res: Response) => {
     }
 
     if (!user.verifyCode) {
-      return res.status(400).json({
+      res.status(400).json({
         message: "Verification code not found!",
       });
+      return;
     }
 
     if (user.verifyExpiredIn.getTime() < Date.now()) {
@@ -225,9 +230,7 @@ const checkVerifyCode = async (req: AuthRequest, res: Response) => {
       verifyExpiredIn: undefined,
     });
 
-    return res.json({
-      message: "Email verified successfully!",
-    });
+    res.json({ message: "Email verified successfully!" });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -261,6 +264,7 @@ const userEdit = async (
       phone,
       about,
       isVisibility,
+      companyName
     } = req.body;
 
     const dto = new EditUserDTO();
@@ -273,6 +277,7 @@ const userEdit = async (
     dto.phone = phone;
     dto.about = about;
     dto.isVisibility = isVisibility;
+    dto.companyName = companyName;
 
     const errors = await validate(dto);
 
@@ -297,7 +302,14 @@ const userEdit = async (
       phone,
       about,
       isVisibility,
+      companyName
     });
+
+    if (user.role === ERoleType.COMPANY) {
+      await User.update(id,
+        { companyName,
+      })
+    }
 
     const updatedData = await User.findOne({
       where: { id },
@@ -340,9 +352,10 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
   });
 
   if (!user) {
-    return res.status(401).json({
+    res.status(401).json({
       message: "Belə bir istifadəçi yoxdur",
     });
+    return;
   }
 
   const token = uuidv4();
@@ -371,9 +384,10 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      return res.status(500).json({ message: "Error sending email", error });
+      res.status(500).json({ message: "Error sending email", error });
+      return;
     }
-    return res
+    res
       .status(200)
       .json({ message: "Password reset email sent successfully." });
   });
@@ -387,20 +401,25 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   });
 
   if (!user || !newPassword) {
-    return res.status(401).json({
+    res.status(401).json({
       message: "Token və ya password yoxdur",
     });
+    return;
   }
 
   if (user.resetExpiredIn.getTime() < Date.now()) {
-    return res.status(401).json({
+    res.status(401).json({
       message: "Artıq vaxt bitib, yenidən cəhd edin!!!",
     });
+    return;
   }
 
   const ValidPassword = await bcrypt.compare(newPassword, user.password);
 
-  if (ValidPassword) return res.json("Əvvəlki parolu yaza bilməzsiniz");
+  if (ValidPassword) {
+    res.json("Əvvəlki parolu yaza bilməzsiniz");
+    return;
+  }
 
   const password = await bcrypt.hash(newPassword, 10);
 
@@ -411,10 +430,60 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   res.send(`${user.email} mailinin password-ü yeniləndi`);
 };
 
+const applyVacancy = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user;
+    const { vacancy_id } = req.body;
+
+    if (!user) {
+      res.json("User not found!");
+      return;
+    }
+
+    const vacancy = await Vacancy.findOne({
+      where: { id: vacancy_id },
+    });
+
+    if (!vacancy) {
+      res.json({ message: "Seçilmiş vakansiya tapılmadı" });
+      return;
+    }
+
+    const existingUser = await User.findOne({
+      where: { id: user.id },
+      relations: ["appliedVacancies"],
+    });
+
+    if (!existingUser) {
+      res.json({ message: "User tapılmadı" });
+      return;
+    }
+
+    if (user.appliedVacancies.some((v) => v.id === vacancy.id)) {
+      res
+        .status(400)
+        .json({ message: "Siz artıq bu vakansiyaya müraciət etmisiniz." });
+      return;
+    }
+
+    user.appliedVacancies.push(vacancy);
+    await User.save(user);
+
+    res.status(201).json({ message: "Müraciət uğurla tamamlandı." });
+  } catch (error) {
+    console.error("Error applying to vacancy:", error);
+    res.status(500).json({ message: "Server xətası baş verdi." });
+  }
+};
+
 export const UserController = () => ({
-  registerUser,
+  register,
   login,
   userEdit,
+  userDelete,
+  ForgetPass,
+  CreatePass,
+  checkEmail,
   verifyEmail,
-  checkVerifyCode,
+  applyVacancy,
 });
