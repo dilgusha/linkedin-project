@@ -4,14 +4,17 @@ import { PostCreateDto, PostUpdateDto } from "./post.dto";
 import { validate } from "class-validator";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Post } from "../../../DAL/models/Post.model";
+import fs from "fs";
 
 const create = async (req: AuthRequest, res: Response) => {
   try {
+    // console.log("req.user", req.user);
+
     if (!req.user) {
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
- 
+
     const { content } = req.body;
 
     const dto = new PostCreateDto();
@@ -23,20 +26,55 @@ const create = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const images = req.files as Record<string, Express.Multer.File[]>;
+    // const images = req.files as Record<string, Express.Multer.File[]>;
+    const image = req.file;
+    console.log(image, "sad");
 
     const newData = new Post();
     newData.content = dto.content;
-    newData.imagesPath = images["images"]?.map((image) => image.filename) || [];
+    // newData.imagesPath = images["images"]?.map((image) => image.filename) || [];
+    newData.imagesPath = image?.filename;
     newData.user_id = req.user.id;
 
     await Post.save(newData);
+
+    throw new Error(" custom Error");
 
     res.status(201).json({
       id: newData.id,
       message: "Post created successfully",
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.log(error.message);
+
+    // vakansiya CREATE / Delete
+    // user experience (ish yerleri) CRUD
+    // user education (təhsil) CRUD
+
+    // if (req.file) {
+    //   console.log("file var", req.file.filename);
+    //   let isExist = false;
+    //   fs.access(`uploads/${req.file.filename}`, (err) => {
+    //     if (err) {
+    //       console.log(err, "er");
+    //       isExist = false;
+    //       return;
+    //     }
+
+    //     console.log("file exists");
+    //     isExist = true;
+    //   });
+    //   console.log(isExist, "isExist");
+
+    if (req.file) {
+      fs.unlink(`uploads/${req.file.filename}`, (err) => {
+        if (err) {
+          console.log(err, "err");
+        }
+        console.log("file deleted");
+      });
+    }
+
     res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -17,7 +17,7 @@ export class Post extends CommonEntity {
   likedUsers: User[];
 
   @Column({ type: "varchar", length: 150 })
-  imagesPath: string[];
+  imagesPath?: string;
 
   @Column({ type: "text" })
   content: string;

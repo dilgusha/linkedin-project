@@ -28,13 +28,13 @@ export class User extends CommonEntity {
   @Column({ type: "varchar", length: 60 })
   password: string;
 
-  @Column({ type: "int" })
+  @Column({ type: "int", nullable: true })
   verifyCode: number;
 
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: false })
   isVerified: boolean;
 
-  @Column({ type: "datetime" })
+  @Column({ type: "datetime", default: null })
   verifyExpiredIn: Date;
 
   @Column({
@@ -50,22 +50,22 @@ export class User extends CommonEntity {
   @Column({ type: "text" })
   about: string;
 
-  @Column({ type: "varchar", length: 150 })
+  @Column({ type: "varchar", length: 150, default: null })
   companyName: string;
 
   @Column({ type: "datetime" })
   birthdate: Date;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", length: 13, default: null })
   phone: string;
 
   @Column({ type: "boolean", default: false })
   isVisibility: boolean;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", default: null })
   passToken: String;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "datetime", default: null })
   resetExpiredIn: Date;
 
   @OneToMany(() => Experience, (experience) => experience.user)
