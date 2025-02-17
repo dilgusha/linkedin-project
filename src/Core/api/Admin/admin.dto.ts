@@ -10,7 +10,7 @@ import {
     MaxLength,
     MinLength,
   } from "class-validator";
-import { ERoleType } from "../../DAL/enum/user.enum";
+import { ERoleType } from "../../app/enums"; 
 
   export class CreateUserByAdminDTO {
     @IsDefined({ message: "Name is required" })

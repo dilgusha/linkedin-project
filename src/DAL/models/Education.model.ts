@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "./User.model";
 import { CommonEntity } from "./Common.model";
-import { EDegreeType } from "../enum/user.enum";
+import { EDegreeType } from "../../Core/app/enums";
 
 @Entity({ name: "educations" })
 export class Education extends CommonEntity {

@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 import { NextFunction, Request, Response } from "express";
 import { appConfig } from "../../consts";
-import { User } from "../models/User.model"; 
+import { User } from "../../DAL/models/User.model"; 
 import { AuthRequest } from "../../types";
 
 export const useAuth = async (

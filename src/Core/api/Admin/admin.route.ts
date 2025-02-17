@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { AdminController } from "./admin.controller"; 
-import { useAuth } from "../../DAL/middlewares/auth.middleware";
-import { roleCheck } from "../../DAL/middlewares/auth.middleware";
-import { ERoleType } from "../../DAL/enum/user.enum"; 
+import { useAuth } from "../../middlewares/auth.middleware";
+import { roleCheck } from "../../middlewares/auth.middleware";
+import { ERoleType } from "../../app/enums";
 
 export const adminRoutes = Router();
 const controller = AdminController();

@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
 import { NextFunction, Request, Response } from "express";
-import { appConfig } from "../../consts";
-import { User } from "../../DAL/models/User.model";
+import { appConfig } from "../../../consts";
+import { User } from "../../../DAL/models/User.model";
 import { validate } from "class-validator";
-import { transporter } from "../../helpers";
+import { transporter } from "../../../helpers";
 import { CreateUserByAdminDTO, EditUserByAdminDTO } from "./admin.dto";
 import { In } from "typeorm";
-import { ERoleType } from "../../DAL/enum/user.enum";
-import { formatErrors } from "../../DAL/middlewares/error.middleware";
+import { ERoleType } from "../../app/enums"; 
+import { formatErrors } from "../../middlewares/error.middleware";
 
 const userCreate = async (req: Request, res: Response, next: NextFunction) => {
   try {

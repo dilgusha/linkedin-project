@@ -1,18 +1,11 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { validate } from "class-validator";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { appConfig } from "../../consts";
-import { User } from "../../DAL/models/User.model";
-import { AuthRequest } from "../../types";
-import { CreateUserDTO, EditUserDTO } from "./user.dto";
-import moment from "moment";
-import { transporter } from "../../helpers";
-import { v4 as uuidv4 } from "uuid";
-import { ERoleType } from "../../DAL/enum/user.enum";
-import { Vacancy } from "../../DAL/models/Vacancy.model";
-import { formatErrors } from "../../DAL/middlewares/error.middleware";
-
+import { User } from "../../../DAL/models/User.model";
+import { AuthRequest } from "../../../types";
+import { EditUserDTO } from "./user.dto";
+import { ERoleType } from "../../app/enums";
+import { Vacancy } from "../../../DAL/models/Vacancy.model";
+import { formatErrors } from "../../middlewares/error.middleware";
 
 const userEdit = async (
   req: AuthRequest,
@@ -39,7 +32,7 @@ const userEdit = async (
       phone,
       about,
       isVisibility,
-      companyName
+      companyName,
     } = req.body;
 
     const dto = new EditUserDTO();
@@ -71,13 +64,11 @@ const userEdit = async (
       phone,
       about,
       isVisibility,
-      companyName
+      companyName,
     });
 
     if (user.role === ERoleType.COMPANY) {
-      await User.update(id,
-        { companyName,
-      })
+      await User.update(id, { companyName });
     }
 
     const updatedData = await User.findOne({

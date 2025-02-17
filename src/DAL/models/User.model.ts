@@ -1,17 +1,14 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
 import { Experience } from "./Experience.model";
 import { Education } from "./Education.model";
 import { Post } from "./Post.model";
 import { Connection } from "./Connection.model";
 import { Vacancy } from "./Vacancy.model";
 import { CommonEntity } from "./Common.model";
-import { EGenderType, ERoleType } from "../enum/user.enum";
+import { EGenderType, ERoleType } from "../../Core/app/enums";
 
 @Entity({ name: "users" })
 export class User extends CommonEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column({ type: "varchar", length: 150 })
   name: string;
 
@@ -28,7 +25,7 @@ export class User extends CommonEntity {
   @Column({ type: "varchar", length: 150 })
   email: string;
 
-  @Column({ type: "varchar", length: 35 })
+  @Column({ type: "varchar", length: 60 })
   password: string;
 
   @Column({ type: "int" })
@@ -79,6 +76,14 @@ export class User extends CommonEntity {
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
+
+  @ManyToMany(() => Post, (post) => post.likedUsers)
+  @JoinTable({
+    name: "users_liked_posts",
+    joinColumn: { name: "user_id" },
+    inverseJoinColumn: { name: "post_id" },
+  })
+  likedPosts: Post[];
 
   @OneToMany(() => Connection, (connection) => connection.user)
   connections: User[];

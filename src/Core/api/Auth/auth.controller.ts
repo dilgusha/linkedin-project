@@ -2,15 +2,15 @@ import { NextFunction, Request, Response } from "express";
 import { validate } from "class-validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { appConfig } from "../../consts";
-import { User } from "../../DAL/models/User.model";
-import { AuthRequest } from "../../types";
+import { appConfig } from "../../../consts";
+import { User } from "../../../DAL/models/User.model";
+import { AuthRequest } from "../../../types";
 import { CreateUserDTO } from "../User/user.dto";
 import moment from "moment";
-import { transporter } from "../../helpers";
+import { transporter } from "../../../helpers";
 import { v4 as uuidv4 } from "uuid";
-import { ERoleType } from "../../DAL/enum/user.enum";
-import { formatErrors } from "../../DAL/middlewares/error.middleware";
+import { ERoleType } from "../../app/enums"; 
+import { formatErrors } from "../../middlewares/error.middleware";
 
 const register = async (
   req: Request,
@@ -111,6 +111,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
   if (!user) {
     res.status(401).json({ message: "Email ve ya shifre sehvdir!" });
+    console.log("user yoxdur")
     return;
   }
 
@@ -120,6 +121,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json({
       message: "Email ve ya shifre sehvdir!",
     });
+    console.log("parol yalnisdir")
     return;
   }
 

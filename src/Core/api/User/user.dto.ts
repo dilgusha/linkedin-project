@@ -1,6 +1,5 @@
 import {
   IsBoolean,
-  IsDate,
   IsDefined,
   IsEmail,
   IsEnum,
@@ -11,7 +10,7 @@ import {
   MaxLength,
   MinLength,
 } from "class-validator";
-import { ERoleType } from "../../DAL/enum/user.enum";
+import { ERoleType } from "../../app/enums";
 
 export class CreateUserDTO {
   @IsDefined({ message: "Name is required" })
@@ -95,7 +94,7 @@ export class EditUserDTO {
   @MaxLength(15)
   @MinLength(8)
   password: string;
-  
+
   @IsOptional()
   @IsString()
   companyName: string;

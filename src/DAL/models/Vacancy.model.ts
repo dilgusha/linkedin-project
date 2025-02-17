@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany } from "typeorm";
 import { User } from "./User.model";
 import { CommonEntity } from "./Common.model";
 

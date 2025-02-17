@@ -1,16 +1,16 @@
 import { Router } from "express";
-import { userRoutes } from "../Core/User/user.route";
-import { adminRoutes } from "../Core/Admin/admin.route";
-import { vacancyRoutes } from "../Core/Vacancy/vacancy.route";
-import { postRoutes } from "../Core/Post/post.route";
-import { categoryRoutes } from "../Core/Category/category.route";
-import { educationRoutes } from "../Core/Education/education.route";
-import { experienceRoutes } from "../Core/Experience/experience.route";
-import { commentRoutes } from "../Core/Comment/comment.route";
-import { connectionRoutes } from "../Core/Connection/connection.route";
-import { messageRoutes } from "../Core/Message/message.route";
-import { notificationRoutes } from "../Core/Notification/notification.route";
-import { authRoutes } from "../Core/Auth/auth.route";
+import { userRoutes } from "../Core/api/User/user.route";
+import { adminRoutes } from "../Core/api/Admin/admin.route";
+import { vacancyRoutes } from "../Core/api/Vacancy/vacancy.route";
+import { postRoutes } from "../Core/api/Post/post.route";
+import { categoryRoutes } from "../Core/api/Category/category.route";
+import { educationRoutes } from "../Core/api/Education/education.route";
+import { experienceRoutes } from "../Core/api/Experience/experience.route";
+import { commentRoutes } from "../Core/api/Comment/comment.route";
+import { connectionRoutes } from "../Core/api/Connection/connection.route";
+import { messageRoutes } from "../Core/api/Message/message.route";
+import { notificationRoutes } from "../Core/api/Notification/notification.route";
+import { authRoutes } from "../Core/api/Auth/auth.route";
 
 export const v1Routes = Router();
 
