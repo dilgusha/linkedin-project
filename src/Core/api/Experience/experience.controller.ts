@@ -49,7 +49,32 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     });
   }
 };
+const getAllExperience = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const { id } = req.params;
+    const experience = await Experience.findOne({ where: { user_id: user.id } });
+
+    if (!experience) {
+      res.status(404).json({ message: "Experience not found" });
+      return;
+    }
+
+    res.status(200).json(experience);
+  } catch (error) {
+    res.status(500).json({
+      message: "An error occurred while fetching the experience",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
 
 export const ExperinceController = () => ({
-    create
+    create,
+    getAllExperience
 });
