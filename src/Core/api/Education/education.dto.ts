@@ -8,6 +8,7 @@ import {
   MinLength,
 } from "class-validator";
 import { EDegreeType } from "../../app/enums";
+import { Type } from "class-transformer";
 
 export class CreateEducationDTO {
   @IsDefined()
@@ -27,10 +28,37 @@ export class CreateEducationDTO {
   faculty: string;
 
   @IsDefined()
-  @IsDate()
+  // @IsDate()
   startDate: Date;
 
   @IsDefined()
-  @IsDate()
+  // @IsDate()
+  endDate: Date;
+}
+
+export class EditEducationDTO {
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  @MinLength(2)
+  schoolName: string;
+
+  @IsOptional()
+  @IsEnum(EDegreeType)
+  degree: EDegreeType;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  @MinLength(2)
+  faculty: string;
+
+  @IsOptional()
+  // @IsDate()
+  // @Type(() => Date)
+  startDate: Date;
+
+  @IsOptional()
+  // @IsDate()
   endDate: Date;
 }

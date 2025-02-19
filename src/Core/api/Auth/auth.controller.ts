@@ -47,7 +47,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     dto.surname = surname;
     dto.gender = gender;
     dto.email = email;
-    dto.password = newPassword;
+    dto.password = password;
     dto.birthdate = birthdate;
     dto.role = role;
     dto.companyName = companyName;

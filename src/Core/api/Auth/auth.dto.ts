@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsDate,
   IsDefined,
   IsEmail,
   IsEnum,
@@ -10,6 +11,7 @@ import {
   MaxLength,
   MinLength,
 } from "class-validator";
+import { Type } from "class-transformer";
 import { ERoleType } from "../../app/enums";
 
 export class CreateUserDTO {
@@ -34,11 +36,13 @@ export class CreateUserDTO {
 
   @IsDefined()
   @IsString()
-  @MinLength(8)
-  // @MaxLength(15)
+  @MinLength(8, { message: "En az 3 simvol olmalidir" })
+  @MaxLength(15, { message: "Pass is too long" })
   password: string;
 
   @IsDefined()
+  // @IsDate()
+  // @Type(() => Date) 
   birthdate: Date;
 
   @IsOptional()
