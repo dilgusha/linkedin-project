@@ -1,5 +1,6 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { CommonEntity } from "./Common.model";
+import { Experience } from "./Experience.model";
 
 @Entity({ name: "categories" })
 export class Category extends CommonEntity {
@@ -8,4 +9,7 @@ export class Category extends CommonEntity {
 
   @Column({ type: "text" })
   description: string;
+
+  @ManyToOne(() => Experience, (experience) => experience.categories)
+  experience: Experience;
 }

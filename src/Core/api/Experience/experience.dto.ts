@@ -1,11 +1,10 @@
-import { IsDate, IsDefined, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsDate, IsDefined, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { Category } from "../../../DAL/models/Category.model";
 
   export class CreateExperienceDTO {
     @IsDefined()
-    @IsString()
-    @MaxLength(50)
-    @MinLength(3)
-    category: string;
+    @IsNumber()
+    categories: Category[];
 
     @IsDefined()
     @IsString()
