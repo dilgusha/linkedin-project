@@ -1,5 +1,7 @@
+import { Type } from "class-transformer";
 import {
   IsBoolean,
+  IsDate,
   IsEmail,
   IsOptional,
   IsPhoneNumber,
@@ -40,6 +42,8 @@ export class EditUserDTO {
   companyName: string;
 
   @IsOptional()
+  // @IsDate()
+  // @Type(() => Date)
   birthdate: Date;
 
   @IsOptional()

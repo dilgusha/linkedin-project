@@ -1,34 +1,45 @@
-import { IsDate, IsDefined, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import {
+  IsDate,
+  IsDefined,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from "class-validator";
 import { Category } from "../../../DAL/models/Category.model";
+import { Type } from "class-transformer";
 
-  export class CreateExperienceDTO {
-    @IsDefined()
-    @IsNumber()
-    categories: Category[];
+export class CreateExperienceDTO {
+  @IsDefined()
+  @IsNumber()
+  categories: Category[];
 
-    @IsDefined()
-    @IsString()
-    @MaxLength(50)
-    @MinLength(3)
-    company: string;
+  @IsDefined()
+  @IsString()
+  @MaxLength(50)
+  @MinLength(3)
+  company: string;
 
-    @IsDefined()
-    @IsString()
-    @MaxLength(50)
-    @MinLength(3)
-    location: string;
-  
-    @IsDefined()
-    @IsDate()
-    startDate: Date;
+  @IsDefined()
+  @IsString()
+  @MaxLength(50)
+  @MinLength(3)
+  location: string;
 
-    @IsDefined()
-    @IsDate()
-    endDate: Date;
+  @IsDefined()
+  // @IsDate()
+  // @Type(() => Date)
+  startDate: Date;
 
-    @IsOptional()
-    @IsString()
-    @MaxLength(100)
-    @MinLength(3)
-    description: string;
-  }
+  @IsDefined()
+  // @IsDate()
+  // @Type(() => Date)
+  endDate: Date;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  @MinLength(3)
+  description: string;
+}
