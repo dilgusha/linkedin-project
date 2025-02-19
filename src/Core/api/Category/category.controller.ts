@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Category } from "../../../DAL/models/Category.model";
 
-const createCategory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const createCategory = async (req: Request,  res: Response,  next: NextFunction) => {
   try {
     const { name, description } = req.body;
 
@@ -28,6 +24,16 @@ const createCategory = async (
     res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
+const getAll = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const categories = await Category.find();
+    
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+}
 
 const deletee = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -56,4 +62,5 @@ const deletee = async (req: Request, res: Response, next: NextFunction) => {
 export const CategoryController = () => ({
   deletee,
   createCategory,
+    getAll
 });
