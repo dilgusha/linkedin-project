@@ -10,6 +10,12 @@ export class Vacancy extends CommonEntity {
   @Column({ type: "text" })
   description: string;
 
+  @Column({ type: "varchar", length: 150 })
+  image_url?: string;
+
+  @Column({ type: "int" })
+  user_id: number;
+
   @ManyToMany(() => User, (user) => user.appliedVacancies)
   appliedUsers: User[];
 }
