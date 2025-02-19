@@ -25,10 +25,10 @@ export class Post extends CommonEntity {
   @Column({ type: "int" })
   user_id: number;
 
-  @ManyToOne(() => User, (user) => user.posts, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, (user) => user.posts)
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @OneToMany(() => Comment, (comment) => comment.post)
+  @OneToMany(() => Comment, (comment) => comment.post, { onDelete: "CASCADE" })
   comments: Comment[];
 }

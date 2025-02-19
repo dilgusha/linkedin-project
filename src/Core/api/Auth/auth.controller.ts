@@ -5,18 +5,14 @@ import jwt from "jsonwebtoken";
 import { appConfig } from "../../../consts";
 import { User } from "../../../DAL/models/User.model";
 import { AuthRequest } from "../../../types";
-import { CreateUserDTO } from "../User/user.dto";
 import moment from "moment";
 import { transporter } from "../../../helpers";
 import { v4 as uuidv4 } from "uuid";
-import { ERoleType } from "../../app/enums"; 
+import { ERoleType } from "../../app/enums";
 import { formatErrors } from "../../middlewares/error.middleware";
+import { CreateUserDTO } from "./auth.dto";
 
-const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       name,
@@ -111,7 +107,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
   if (!user) {
     res.status(401).json({ message: "Email ve ya shifre sehvdir!" });
-    console.log("user yoxdur")
+    console.log("user yoxdur");
     return;
   }
 
@@ -121,7 +117,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     res.status(401).json({
       message: "Email ve ya shifre sehvdir!",
     });
-    console.log("parol yalnisdir")
+    console.log("parol yalnisdir");
     return;
   }
 
@@ -236,105 +232,104 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
 };
 
 const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
-    const user = await User.findOne({
-      where: { email: req.body.email },
+  const user = await User.findOne({
+    where: { email: req.body.email },
+  });
+
+  if (!user) {
+    res.status(401).json({
+      message: "Belə bir istifadəçi yoxdur",
     });
-  
-    if (!user) {
-      res.status(401).json({
-        message: "Belə bir istifadəçi yoxdur",
-      });
-      return;
-    }
-  
-    const token = uuidv4();
-    const resetExpiredIn = moment()
-      .add(appConfig.VALIDITY_MINUTE_MAIL, "minutes")
-      .toDate();
-  
-    user.passToken = token;
-    user.resetExpiredIn = resetExpiredIn;
-  
-    await user.save();
-  
-    res.json("Check your email");
-  
-    const resetUrl = `${appConfig.CREATE_PASS_URL}${token}`;
-  
-    const mailOptions = {
-      from: appConfig.EMAIL,
-      to: req.body.email,
-      subject: "Password Reset Request",
-      html: `<h3>Password Reset</h3>
+    return;
+  }
+
+  const token = uuidv4();
+  const resetExpiredIn = moment()
+    .add(appConfig.VALIDITY_MINUTE_MAIL, "minutes")
+    .toDate();
+
+  user.passToken = token;
+  user.resetExpiredIn = resetExpiredIn;
+
+  await user.save();
+
+  res.json("Check your email");
+
+  const resetUrl = `${appConfig.CREATE_PASS_URL}${token}`;
+
+  const mailOptions = {
+    from: appConfig.EMAIL,
+    to: req.body.email,
+    subject: "Password Reset Request",
+    html: `<h3>Password Reset</h3>
                  <p>To reset your password, click the link below:</p>
                  <a href="${resetUrl}">Reset Password</a>
                  <p>This link is valid for ${appConfig.VALIDITY_MINUTE_MAIL} minute.</p>`,
-    };
-  
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        res.status(500).json({ message: "Error sending email", error });
-        return;
-      }
-      res
-        .status(200)
-        .json({ message: "Password reset email sent successfully." });
-    });
-  };
-  
-  const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
-    const { newPassword } = req.body;
-  
-    const user = await User.findOne({
-      where: { passToken: req.params.passToken },
-    });
-  
-  
-    const dto = new CreateUserDTO();
-    dto.password = newPassword;
-  
-    const errors = await validate(dto);
-  
-    if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
-      return;
-    }  
-  
-    if (!user || !newPassword) {
-      res.status(401).json({
-        message: "Token və ya password yoxdur",
-      });
-      return;
-    }
-  
-    if (user.resetExpiredIn.getTime() < Date.now()) {
-      res.status(401).json({
-        message: "Artıq vaxt bitib, yenidən cəhd edin!!!",
-      });
-      return;
-    }
-  
-    const ValidPassword = await bcrypt.compare(newPassword, user.password);
-  
-    if (ValidPassword) {
-      res.json("Əvvəlki parolu yaza bilməzsiniz");
-      return;
-    }
-  
-    const password = await bcrypt.hash(newPassword, 10);
-  
-    user.password = password;
-    user.passToken = "";
-  
-    await user.save();
-    res.send(`${user.email} mailinin password-ü yeniləndi`);
   };
 
-export const AuthController = () => ({
-    register,
-    login,
-    ForgetPass,
-    CreatePass,
-    checkEmail,
-    verifyEmail,
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      res.status(500).json({ message: "Error sending email", error });
+      return;
+    }
+    res
+      .status(200)
+      .json({ message: "Password reset email sent successfully." });
   });
+};
+
+const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
+  const { newPassword } = req.body;
+
+  const user = await User.findOne({
+    where: { passToken: req.params.passToken },
+  });
+
+  const dto = new CreateUserDTO();
+  dto.password = newPassword;
+
+  const errors = await validate(dto);
+
+  if (errors.length > 0) {
+    res.status(400).json(formatErrors(errors));
+    return;
+  }
+
+  if (!user || !newPassword) {
+    res.status(401).json({
+      message: "Token və ya password yoxdur",
+    });
+    return;
+  }
+
+  if (user.resetExpiredIn.getTime() < Date.now()) {
+    res.status(401).json({
+      message: "Artıq vaxt bitib, yenidən cəhd edin!!!",
+    });
+    return;
+  }
+
+  const ValidPassword = await bcrypt.compare(newPassword, user.password);
+
+  if (ValidPassword) {
+    res.json("Əvvəlki parolu yaza bilməzsiniz");
+    return;
+  }
+
+  const password = await bcrypt.hash(newPassword, 10);
+
+  user.password = password;
+  user.passToken = "";
+
+  await user.save();
+  res.send(`${user.email} mailinin password-ü yeniləndi`);
+};
+
+export const AuthController = () => ({
+  register,
+  login,
+  ForgetPass,
+  CreatePass,
+  checkEmail,
+  verifyEmail,
+});

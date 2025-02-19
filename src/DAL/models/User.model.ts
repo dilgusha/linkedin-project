@@ -68,16 +68,16 @@ export class User extends CommonEntity {
   @Column({ type: "datetime", default: null })
   resetExpiredIn: Date;
 
-  @OneToMany(() => Experience, (experience) => experience.user)
+  @OneToMany(() => Experience, (experience) => experience.user, { onDelete: "CASCADE" })
   experiences: Experience[];
 
-  @OneToMany(() => Education, (education) => education.user)
+  @OneToMany(() => Education, (education) => education.user, { onDelete: "CASCADE" })
   educations: Education[];
 
-  @OneToMany(() => Post, (post) => post.user)
+  @OneToMany(() => Post, (post) => post.user, { onDelete: "CASCADE" })
   posts: Post[];
 
-  @ManyToMany(() => Post, (post) => post.likedUsers)
+  @ManyToMany(() => Post, (post) => post.likedUsers, { onDelete: "CASCADE" })
   @JoinTable({
     name: "users_liked_posts",
     joinColumn: { name: "user_id" },

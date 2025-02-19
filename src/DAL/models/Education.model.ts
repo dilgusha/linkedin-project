@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { User } from "./User.model";
 import { CommonEntity } from "./Common.model";
 import { EDegreeType } from "../../Core/app/enums";
@@ -24,6 +24,13 @@ export class Education extends CommonEntity {
   @Column({ nullable: true })
   endDate: Date;
 
+  @Column({ nullable: true })
+  imageUrl?: string;
+
+  @Column({ type: "int" })
+  user_id: number;
+
   @ManyToOne(() => User, (user) => user.educations)
+  @JoinColumn({ name: "user_id" })
   user: User[];
 }

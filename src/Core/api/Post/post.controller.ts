@@ -4,13 +4,13 @@ import { PostCreateDto, PostUpdateDto } from "./post.dto";
 import { validate } from "class-validator";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Post } from "../../../DAL/models/Post.model";
-import fs from "fs";
+import fs from "fs/promises";
 
 const create = async (req: AuthRequest, res: Response) => {
   try {
-    // console.log("req.user", req.user);
+    const user = req.user;
 
-    if (!req.user) {
+    if (!user) {
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
@@ -18,7 +18,7 @@ const create = async (req: AuthRequest, res: Response) => {
     const { content } = req.body;
 
     const dto = new PostCreateDto();
-    dto.content = req.body.content;
+    dto.content = content;
 
     const errors = await validate(dto);
     if (errors.length > 0) {
@@ -28,53 +28,35 @@ const create = async (req: AuthRequest, res: Response) => {
 
     // const images = req.files as Record<string, Express.Multer.File[]>;
     const image = req.file;
-    console.log(image, "sad");
 
     const newData = new Post();
     newData.content = dto.content;
     // newData.imagesPath = images["images"]?.map((image) => image.filename) || [];
     newData.imagesPath = image?.filename;
-    newData.user_id = req.user.id;
+    newData.user_id = user.id;
 
     await Post.save(newData);
-
-    throw new Error(" custom Error");
 
     res.status(201).json({
       id: newData.id,
       message: "Post created successfully",
     });
   } catch (error: any) {
-    console.log(error.message);
-
-    // vakansiya CREATE / Delete
-    // user experience (ish yerleri) CRUD
-    // user education (təhsil) CRUD
-
-    // if (req.file) {
-    //   console.log("file var", req.file.filename);
-    //   let isExist = false;
-    //   fs.access(`uploads/${req.file.filename}`, (err) => {
-    //     if (err) {
-    //       console.log(err, "er");
-    //       isExist = false;
-    //       return;
-    //     }
-
-    //     console.log("file exists");
-    //     isExist = true;
-    //   });
-    //   console.log(isExist, "isExist");
 
     if (req.file) {
-      fs.unlink(`uploads/${req.file.filename}`, (err) => {
-        if (err) {
-          console.log(err, "err");
-        }
-        console.log("file deleted");
-      });
-    }
+      console.log("file var", req.file.filename);
+      const filePath = `uploads/${req.file.filename}`;
 
+      try {
+        await fs.access(filePath);
+        console.log("file exists");
+
+        await fs.unlink(filePath);
+        console.log("file deleted");
+      } catch (err) {
+        console.log("Fayl mövcud deyil və ya silinərkən xəta baş verdi:", err);
+      }
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -10,7 +10,7 @@ export const appConfig = {
     VERIFY_URL: process.env.VERIFY_URL,
     MY_SQL_PORT: process.env.MY_SQL_PORT,
     LOCALHOST: process.env.LOCALHOST,
-    USERNAME: process.env.USERNAME,
+    MY_SQL_USERNAME: process.env.MY_SQL_USERNAME,
     MY_SQL_PASSWORD: process.env.MY_SQL_PASSWORD,
     MY_SQL_DATABASE:process.env.MY_SQL_DATABASE
   };
