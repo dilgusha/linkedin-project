@@ -64,6 +64,48 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     }
 };
 
+const deleteEducation = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+    const { educationId } = req.params; 
+
+    if (!user) {
+      res.json("User not found");
+      return;
+    }
+
+    
+    const education = await Education.findOne({ where: { id: Number(educationId), user_id: user.id } });
+
+    if (!education) {
+      res.status(404).json({ message: "Education record not found" });
+      return;
+    }
+
+    
+    if (education.imageUrl) {
+      const filePath = `uploads/${education.imageUrl}`;
+
+      try {
+        await fs.access(filePath); 
+        await fs.unlink(filePath); 
+        console.log("Image deleted:", filePath);
+      } catch (err) {
+        console.log("File not found or error deleting file:", err);
+      }
+    }
+
+    
+    await education.remove();
+
+    res.status(200).json({ message: "Education record deleted successfully" });
+  } catch (error) {
+    console.log("Error deleting education record:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const EducationController = () => ({
-    create
+    create,
+    deleteEducation
 });

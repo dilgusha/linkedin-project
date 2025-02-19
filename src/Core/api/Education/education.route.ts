@@ -7,3 +7,5 @@ export const educationRoutes = Router();
 const controller = EducationController();
 
 educationRoutes.post("/create", useAuth, uploads.single("image"), controller.create);
+educationRoutes.delete("/delete", useAuth, controller.deleteEducation);
+
