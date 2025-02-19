@@ -4,6 +4,8 @@ import { CreateExperienceDTO } from "./experience.dto";
 import { validate } from "class-validator";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Experience } from "../../../DAL/models/Experience.model";
+import { In } from "typeorm";
+import { Category } from "../../../DAL/models/Category.model";
 
 const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -14,41 +16,55 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
       return;
     }
 
-    const { category, company, location, startDate, endDate, description } =
+    const { category_ids, company, location, startDate, endDate, description } =
       req.body;
 
-    const dto = new CreateExperienceDTO();
-    dto.category = category;
-    dto.company = company;
-    dto.location = location;
-    dto.startDate = startDate;
-    dto.endDate = endDate;
-    dto.description = description;
+      const category_list = await Category.find({
+        where: {
+          id: In(category_ids),
+        },
+      });
 
-    const errors = await validate(dto);
-    if (errors.length > 0) {
-      res.status(422).json(formatErrors(errors));
-      return;
-    }
+      if (category_list.length === 0) {
+        res.json("Kateqoriya yoxdur");
+        return;
+      }
 
-    const newExperience = Experience.create({
-        category,
+      const dto = new CreateExperienceDTO();
+      dto.categories = category_list;
+      dto.company = company;
+      dto.location = location;
+      dto.startDate = startDate;
+      dto.endDate = endDate;
+      dto.description = description;
+  
+      const errors = await validate(dto);
+      if (errors.length > 0) {
+        res.status(422).json(formatErrors(errors));
+        return;
+      }
+  
+      const newExperience = Experience.create({
+        categories:category_list,
         company,
         location,
         startDate,
         endDate,
         description,
-        user_id: user.id
-    });
+        user_id: user.id,
+      });
 
-    res.status(201).json(newExperience);
-  } catch (error) {
-    res.status(500).json({
-      message: "An error occurred while creating the experience",
-      error: error instanceof Error ? error.message : error,
-    });
-  }
-};
+      await newExperience.save();
+  
+      res.status(201).json(newExperience);
+    } catch (error) {
+      res.status(500).json({
+        message: "An error occurred while creating the experience",
+        error: error instanceof Error ? error.message : error,
+      });
+    }
+  };    
+
 const getAllExperience = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user;

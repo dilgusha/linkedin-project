@@ -1,6 +1,7 @@
-import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { User } from "./User.model";
 import { CommonEntity } from "./Common.model";
+import { Category } from "./Category.model";
 
 @Entity({ name: "experinces" })
 export class Experience extends CommonEntity {
@@ -28,4 +29,9 @@ export class Experience extends CommonEntity {
   @ManyToOne(() => User, (user) => user.experiences)
   @JoinColumn({ name: "user_id" })
   user: User[];
+
+  @OneToMany(() => Category, (category) => category.experience)
+  @JoinColumn({ name: "category_id" })
+  categories: Category[];
+
 }
