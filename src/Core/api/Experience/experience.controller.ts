@@ -53,6 +53,8 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
         description,
         user_id: user.id,
       });
+
+      await newExperience.save();
   
       res.status(201).json(newExperience);
     } catch (error) {

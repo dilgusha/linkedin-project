@@ -43,6 +43,8 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
       user_id: user.id,
     });
 
+    await newEducation.save();
+
     res.status(201).json(newEducation);
   } catch (error: any) {
   
