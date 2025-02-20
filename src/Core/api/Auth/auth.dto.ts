@@ -11,7 +11,6 @@ import {
   MaxLength,
   MinLength,
 } from "class-validator";
-import { Type } from "class-transformer";
 import { ERoleType } from "../../app/enums";
 
 export class CreateUserDTO {

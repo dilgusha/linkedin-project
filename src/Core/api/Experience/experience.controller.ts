@@ -176,9 +176,42 @@ const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     return;
   }
 };
+const deleteExperience = async(req:AuthRequest,res:Response,next:NextFunction)=>{
+  try{
+    const user=req.user
+    if(!user){
+      res.json ("user not found")
+      return
+    }
+  const  experience_id =Number(req.params)
+  if(!experience_id){
+    res.json("id is required")
+  }
+  const experience =await Experience.findOne({
+    where:{id:experience_id},
+    relations:["user"]//?
+  })
+  if(!experience){
+    res.status(404).json({message:"experience not found"})
+    return
+  }
+  if(experience.user_id !== user.id){
+    res.json("You cannot this operation")
+    return
+  }
+  await Experience.softRemove(experience)
+  res.status(200).json({message:"experience deleted succesfully"})
+}catch(error){
+  res.status(500).json({
+    message:"Internal server error",
+    error,
+  })
+}
+}
 
 export const ExperinceController = () => ({
   create,
   getUserExperience,
   update,
+  deleteExperience,
 });

@@ -8,7 +8,6 @@ import {
   MinLength,
 } from "class-validator";
 import { EDegreeType } from "../../app/enums";
-import { Type } from "class-transformer";
 
 export class CreateEducationDTO {
   @IsDefined()

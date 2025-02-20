@@ -8,7 +8,6 @@ import {
   MinLength,
 } from "class-validator";
 import { Category } from "../../../DAL/models/Category.model";
-import { Type } from "class-transformer";
 
 export class CreateExperienceDTO {
   @IsDefined()
