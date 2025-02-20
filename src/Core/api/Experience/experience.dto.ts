@@ -12,7 +12,6 @@ import { Type } from "class-transformer";
 
 export class CreateExperienceDTO {
   @IsDefined()
-  @IsNumber()
   categories: Category[];
 
   @IsDefined()

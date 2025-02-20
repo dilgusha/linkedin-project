@@ -157,7 +157,6 @@ const editEducation = async (req: AuthRequest, res: Response) => {
   }
 };
 
-
 const deleteEducation = async (
   req: AuthRequest,
   res: Response,
@@ -165,7 +164,7 @@ const deleteEducation = async (
 ) => {
   try {
     const user = req.user;
-    const { educationId } = req.params;
+    const  educationId  = Number(req.params.id);
 
     if (!user) {
       res.json("User not found");
@@ -173,7 +172,7 @@ const deleteEducation = async (
     }
 
     const education = await Education.findOne({
-      where: { id: Number(educationId), user_id: user.id },
+      where: { id: educationId, user_id: user.id },
     });
 
     if (!education) {

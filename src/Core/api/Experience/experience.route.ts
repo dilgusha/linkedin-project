@@ -6,5 +6,4 @@ export const experienceRoutes = Router();
 const controller = ExperinceController();
 
 experienceRoutes.post("/create", useAuth, controller.create);
-experienceRoutes.get("/get-experiences", useAuth, controller.getAllExperience);
-
+experienceRoutes.get("/get-experiences", useAuth, controller.getUserExperience);
