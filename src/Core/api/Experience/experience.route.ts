@@ -8,4 +8,4 @@ const controller = ExperinceController();
 experienceRoutes.post("/create", useAuth, controller.create);
 experienceRoutes.get("/get-experiences", useAuth, controller.getUserExperience);
 experienceRoutes.put("/update", useAuth, controller.update);
-experienceRoutes.delete("/delete-experience",useAuth,controller.deleteExperience);
+experienceRoutes.delete("/delete/:id",useAuth,controller.deleteExperience);
