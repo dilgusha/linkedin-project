@@ -26,11 +26,9 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     });
 
     if (category_list.length === 0) {
-      res.json("Kateqoriya yoxdur");
+      res.status(404).json("Kateqoriya yoxdur");
       return;
     }
-
-    console.log(category_list)
 
     const dto = new CreateExperienceDTO();
     dto.categories = category_list;
@@ -97,7 +95,82 @@ const getUserExperience = async (
   }
 };
 
+const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const {
+      id,
+      category_ids,
+      company,
+      location,
+      startDate,
+      endDate,
+      description,
+    } = req.body;
+
+    if (!id) {
+      res.status(400).json({ message: "id are invalid" });
+      return;
+    }
+
+    const experience = await Experience.findOne({
+      where: {
+        id: +id,
+        user_id: user?.id,
+      },
+    });
+
+    if (!experience) {
+      res.status(404).json({ message: "Experience not found" });
+      return;
+    }
+
+    const category_list = category_ids
+      ? await Category.find({
+          where: { id: In(category_ids) },
+        })
+      : [];
+
+    if (category_ids && category_list.length === 0) {
+      res.status(400).json({ message: "Invalid categories" });
+      return;
+    }
+
+    Object.assign(experience, {
+      company: company || experience.company,
+      location: location || experience.location,
+      startDate: startDate || experience.startDate,
+      endDate: endDate || experience.endDate,
+      description: description || experience.description,
+      categories:
+        category_list.length > 0 ? category_list : experience.categories,
+    });
+
+    const errors = await validate(experience);
+    if (errors.length > 0) {
+      res.status(422).json(formatErrors(errors));
+      return;
+    }
+
+    await experience.save();
+    res.status(200).json({
+      message: "experince update edildi",
+      data: experience,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "internal server error",
+    });
+  }
+};
+
 export const ExperinceController = () => ({
   create,
   getUserExperience,
+  update,
 });
