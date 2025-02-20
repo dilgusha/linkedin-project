@@ -110,5 +110,6 @@ const deletee = async (req: Request, res: Response, next: NextFunction) => {
 export const CategoryController = () => ({
   deletee,
   createCategory,
-    getAll
+    getAll,
+    updatedCategory,
 });
