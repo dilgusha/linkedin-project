@@ -156,7 +156,28 @@ const editEducation = async (req: AuthRequest, res: Response) => {
     });
   }
 };
-
+const getUserEducation = async(req:AuthRequest,res:Response,next:NextFunction)=>{
+  try{
+    const user = req.user
+    if(!user){
+      res.json("User not found")
+      return
+    }
+    const getEducation =await Education.findOne({
+      where:{user_id:user.id}
+    })
+    if(!getEducation){
+      res.json("Education not found")
+      return
+    }
+    res.status(200).json(getEducation)
+}catch(error){
+  res.status(500).json({
+    message:"Internal server error",
+    error,
+  })
+}
+}
 const deleteEducation = async (
   req: AuthRequest,
   res: Response,
@@ -205,4 +226,5 @@ export const EducationController = () => ({
   create,
   editEducation,
   deleteEducation,
+  getUserEducation,
 });

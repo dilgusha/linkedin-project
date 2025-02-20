@@ -183,7 +183,7 @@ const deleteExperience = async(req:AuthRequest,res:Response,next:NextFunction)=>
       res.json ("user not found")
       return
     }
-  const  experience_id =Number(req.params)
+  const experience_id =Number(req.params)
   if(!experience_id){
     res.json("id is required")
   }
