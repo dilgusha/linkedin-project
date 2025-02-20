@@ -114,15 +114,12 @@ const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     } = req.body;
 
     if (!id) {
-      res.status(400).json({ message: "id are invalid" });
+      res.status(400).json({ message: "Invalid ID" });
       return;
     }
 
     const experience = await Experience.findOne({
-      where: {
-        id: +id,
-        user_id: user?.id,
-      },
+      where: { id: +id, user_id: user.id },
     });
 
     if (!experience) {
@@ -131,9 +128,7 @@ const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     }
 
     const category_list = category_ids
-      ? await Category.find({
-          where: { id: In(category_ids) },
-        })
+      ? await Category.find({ where: { id: In(category_ids) } })
       : [];
 
     if (category_ids && category_list.length === 0) {
@@ -141,17 +136,30 @@ const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
       return;
     }
 
+    const parsedStartDate = startDate
+      ? new Date(startDate)
+      : experience.startDate;
+    const parsedEndDate = endDate ? new Date(endDate) : experience.endDate;
+
     Object.assign(experience, {
       company: company || experience.company,
       location: location || experience.location,
-      startDate: startDate || experience.startDate,
-      endDate: endDate || experience.endDate,
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
       description: description || experience.description,
       categories:
         category_list.length > 0 ? category_list : experience.categories,
     });
 
-    const errors = await validate(experience);
+    const dto = new CreateExperienceDTO();
+    dto.categories = category_list;
+    dto.company = experience.company;
+    dto.location = experience.location;
+    dto.startDate = parsedStartDate;
+    dto.endDate = parsedEndDate;
+    dto.description = experience.description;
+
+    const errors = await validate(dto);
     if (errors.length > 0) {
       res.status(422).json(formatErrors(errors));
       return;
@@ -159,13 +167,13 @@ const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
 
     await experience.save();
     res.status(200).json({
-      message: "experince update edildi",
+      message: "Experience updated successfully",
       data: experience,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "internal server error",
-    });
+    console.error("Update Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+    return;
   }
 };
 
