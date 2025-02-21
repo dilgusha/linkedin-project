@@ -10,7 +10,7 @@ import { transporter } from "../../../helpers";
 import { v4 as uuidv4 } from "uuid";
 import { ERoleType } from "../../app/enums";
 import { formatErrors } from "../../middlewares/error.middleware";
-import { CreateUserDTO } from "./auth.dto";
+import { CreatePassDTO, CreateUserDTO } from "./auth.dto";
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -157,7 +157,7 @@ const checkEmail = async (req: AuthRequest, res: Response) => {
       .add(appConfig.VALIDITY_MINUTE_MAIL, "minutes")
       .toDate();
 
-    await User.update(email, {
+   const updateUser= await User.update(user.id, {
       verifyCode,
       verifyExpiredIn,
     });
@@ -198,6 +198,11 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
       res.json("User not found;");
       return;
     }
+    console.log(user.isVerified)
+    if (user.isVerified === true) {
+      res.json({ message: "Email is already verified" });
+      return;
+    }
 
     if (!user.verifyCode) {
       res.status(400).json({
@@ -216,11 +221,11 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    await User.update(user.id, {
-      isVerified: true,
-      verifyCode: undefined,
-      verifyExpiredIn: undefined,
-    });
+    // await User.update(user.id, {
+    //   isVerified: null,
+    //   verifyCode: null,
+    //   verifyExpiredIn: null,
+    // });
 
     res.json({ message: "Email verified successfully!" });
   } catch (error) {
@@ -253,8 +258,6 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
 
   await user.save();
 
-  res.json("Check your email");
-
   const resetUrl = `${appConfig.CREATE_PASS_URL}${token}`;
 
   const mailOptions = {
@@ -274,7 +277,7 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
     }
     res
       .status(200)
-      .json({ message: "Password reset email sent successfully." });
+      .json({ message: "Password reset email sent successfully.Check your email" });
   });
 };
 
@@ -282,10 +285,10 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   const { newPassword } = req.body;
 
   const user = await User.findOne({
-    where: { passToken: req.params.passToken },
+    where: { passToken: req.params.token },
   });
 
-  const dto = new CreateUserDTO();
+  const dto = new CreatePassDTO();
   dto.password = newPassword;
 
   const errors = await validate(dto);

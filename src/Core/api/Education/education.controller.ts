@@ -3,7 +3,7 @@ import { AuthRequest } from "../../../types";
 import { validate } from "class-validator";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Experience } from "../../../DAL/models/Experience.model";
-import { CreateEducationDTO } from "./education.dto";
+import { CreateEducationDTO, EditEducationDTO } from "./education.dto";
 import { Education } from "../../../DAL/models/Education.model";
 import fs from "fs/promises";
 
@@ -61,84 +61,123 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
         console.log("Fayl mövcud deyil və ya silinərkən xəta baş verdi:", err);
       }
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({
+      message: "An error occurred while create the education",
+      error: error instanceof Error ? error.message : error,
+    });
   }
 };
 
-// const editEducation = async (req: AuthRequest, res: Response) => {
-//   try {
-//     const user = req.user;
+const editEducation = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user;
 
-//     if (!user) {
-//       res.json("User not found");
-//       return;
-//     }
+    if (!user) {
+      res.json("User not found");
+      return;
+    }
 
-//     const education_id = Number(req.params.id);
+    const education_id = Number(req.params.id);
 
-//     if (!education_id) {
-//       new Error("Id is required");
-//       return;
-//     }
+    if (!education_id) {
+      new Error("Id is required");
+      return;
+    }
+    const { schoolName, degree, faculty, startDate, endDate } = req.body;
 
-//     const { content } = req.body;
+    const image = req.file;
 
-//     const dto = new PostUpdateDto();
-//     dto.content = content;
+    const dto = new EditEducationDTO();
+    dto.schoolName = schoolName;
+    dto.degree = degree;
+    dto.faculty = faculty;
+    dto.startDate = startDate;
+    dto.endDate = endDate;
 
-//     const errors = await validate(dto);
+    const errors = await validate(dto);
 
-//     if (errors.length > 0) {
-//       res.status(400).json(formatErrors(errors));
-//       return;
-//     }
+    if (errors.length > 0) {
+      res.status(400).json(formatErrors(errors));
+      return;
+    }
 
-//     const post = await Post.findOne({
-//       where: { id: post_id },
-//       relations: ["user"],
-//     });
+    const education = await Education.findOne({
+      where: { id: education_id },
+      relations: ["user"],
+    });
 
-//     if (!post) {
-//       res.status(404).json({ message: "Post not found" });
-//       return;
-//     }
+    if (!education) {
+      res.status(404).json({ message: "Education not found" });
+      return;
+    }
 
-//     if (post.user_id !== user.id) {
-//       res.json("Siz bu posta duzelish ede bilmezsiz");
-//       return;
-//     }
+    if (education.user_id !== user.id) {
+      res.json("Siz bu educationa duzelish ede bilmezsiz");
+      return;
+    }
 
-//     const update = content !== post.content;
+    await Education.update(education_id, {
+      schoolName,
+      degree,
+      faculty,
+      imageUrl: image?.filename,
+      startDate,
+      endDate
+    });
 
-//     if (!update) {
-//       res.json({
-//         message: "No changes detected, coment not updated.",
-//       });
-//       return;
-//     }
+    const updatedData = await Education.findOne({
+      where: { id: education_id },
+      relations: ["user"],
+      select: ["id", "schoolName", "degree", "faculty", "updated_at"],
+    });
 
-//     await Post.update(post_id, {
-//       content,
-//     });
+    res.json({
+      message: "Education updated successfully",
+      data: updatedData,
+    });
+  } catch (error: any) {
+    if (req.file) {
+      console.log("file var", req.file.filename);
+      const filePath = `uploads/${req.file.filename}`;
 
-//     const updatedData = await Post.findOne({
-//       where: { id: post_id },
-//       relations: ["user"],
-//       select: ["id", "content", "updated_at"],
-//     });
+      try {
+        await fs.access(filePath);
+        console.log("file exists");
 
-//     res.json({
-//       message: "Post updated successfully",
-//       data: updatedData,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "An error occurred while update the post",
-//       error: error instanceof Error ? error.message : error,
-//     });
-//   }
-// };
-
+        await fs.unlink(filePath);
+        console.log("file deleted");
+      } catch (err) {
+        console.log("Fayl mövcud deyil və ya silinərkən xəta baş verdi:", err);
+      }
+    }
+    res.status(500).json({
+      message: "An error occurred while update the education",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+const getUserEducation = async(req:AuthRequest,res:Response,next:NextFunction)=>{
+  try{
+    const user = req.user
+    if(!user){
+      res.json("User not found")
+      return
+    }
+    const getEducation =await Education.findOne({
+      where:{user_id:user.id}
+    })
+    if(!getEducation){
+      res.json("Education not found")
+      return
+    }
+    res.status(200).json(getEducation)
+}catch(error){
+  res.status(500).json({
+    message:"Internal server error",
+    error,
+  })
+}
+}
 const deleteEducation = async (
   req: AuthRequest,
   res: Response,
@@ -146,7 +185,7 @@ const deleteEducation = async (
 ) => {
   try {
     const user = req.user;
-    const { educationId } = req.params;
+    const  educationId  = Number(req.params.id);
 
     if (!user) {
       res.json("User not found");
@@ -154,7 +193,7 @@ const deleteEducation = async (
     }
 
     const education = await Education.findOne({
-      where: { id: Number(educationId), user_id: user.id },
+      where: { id: educationId, user_id: user.id },
     });
 
     if (!education) {
@@ -185,5 +224,7 @@ const deleteEducation = async (
 
 export const EducationController = () => ({
   create,
+  editEducation,
   deleteEducation,
+  getUserEducation,
 });

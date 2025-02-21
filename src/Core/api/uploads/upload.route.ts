@@ -7,4 +7,4 @@ export const uploadRoutes = Router();
 const controller = UploadController();
 
 uploadRoutes.post("/create", useAuth, uploads.single("image"), controller.uploadImage);
-uploadRoutes.delete("/delete", useAuth,  controller.deleteImage);
+uploadRoutes.delete("/delete/:id", useAuth,  controller.deleteImage);

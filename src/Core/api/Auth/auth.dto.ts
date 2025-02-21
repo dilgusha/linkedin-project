@@ -11,7 +11,6 @@ import {
   MaxLength,
   MinLength,
 } from "class-validator";
-import { Type } from "class-transformer";
 import { ERoleType } from "../../app/enums";
 
 export class CreateUserDTO {
@@ -71,4 +70,12 @@ export class CreateUserDTO {
   @IsOptional()
   @IsBoolean()
   isVisibility: boolean;
+}
+
+export class CreatePassDTO{
+  @IsDefined()
+  @IsString()
+  @MinLength(8, { message: "En az 3 simvol olmalidir" })
+  @MaxLength(15, { message: "Pass is too long" })
+  password: string;
 }

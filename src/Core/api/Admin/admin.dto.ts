@@ -11,7 +11,6 @@ import {
   MinLength,
 } from "class-validator";
 import { ERoleType } from "../../app/enums";
-import { Type } from "class-transformer";
 
 export class CreateUserByAdminDTO {
   @IsDefined({ message: "Name is required" })
