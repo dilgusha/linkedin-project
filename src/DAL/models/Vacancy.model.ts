@@ -4,13 +4,13 @@ import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "vacancies" })
 export class Vacancy extends CommonEntity {
-  @Column({ type: "int" })
+  @Column({ type: "int" , default:null})
   viewCount: number;
 
-  @Column({ type: "text" })
+  @Column({ type: "text" , default:null})
   description: string;
 
-  @Column({ type: "varchar", length: 150 })
+  @Column({ type: "varchar", length: 150, default:null })
   image_url?: string;
 
   @Column({ type: "int" })

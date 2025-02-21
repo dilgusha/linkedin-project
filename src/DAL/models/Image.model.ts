@@ -7,10 +7,10 @@ import { unlink } from "fs/promises";
 @Entity('images')
 
 export class ImageModel extends CommonEntity {
-    @Column()
+    @Column({ type: "varchar"})
     filename: string;
 
-    @Column()
+    @Column({ type: "varchar"})
     url: string;
 
     // @BeforeRemove()

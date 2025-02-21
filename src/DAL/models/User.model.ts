@@ -9,10 +9,10 @@ import { EGenderType, ERoleType } from "../../Core/app/enums";
 
 @Entity({ name: "users" })
 export class User extends CommonEntity {
-  @Column({ type: "varchar", length: 150 })
+  @Column({ type: "varchar", length: 150, default:null})
   name: string;
 
-  @Column({ type: "varchar", length: 150 })
+  @Column({ type: "varchar", length: 150, default:null })
   surname: string;
 
   @Column({
@@ -44,16 +44,16 @@ export class User extends CommonEntity {
   })
   role: ERoleType;
 
-  @Column({ nullable: true })
+  @Column({ type:"varchar", nullable: true })
   avatar_path: string;
 
-  @Column({ type: "text" })
+  @Column({ type: "text", default:null })
   about: string;
 
   @Column({ type: "varchar", length: 150, default: null })
   companyName: string;
 
-  @Column({ type: "datetime" })
+  @Column({ type: "datetime", default:null })
   birthdate: Date;
 
   @Column({ type: "varchar", length: 13, default: null })
@@ -74,7 +74,7 @@ export class User extends CommonEntity {
   @OneToMany(() => Education, (education) => education.user, { onDelete: "CASCADE" })
   educations: Education[];
 
-  @OneToMany(() => Post, (post) => post.user, { onDelete: "CASCADE" })
+  @OneToMany(() => Post, (post) => post.user,{ cascade: true, onDelete: "CASCADE" })
   posts: Post[];
 
   @ManyToMany(() => Post, (post) => post.likedUsers, { onDelete: "CASCADE" })

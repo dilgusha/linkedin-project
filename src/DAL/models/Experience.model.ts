@@ -13,19 +13,19 @@ import { Category } from "./Category.model";
 
 @Entity({ name: "experinces" })
 export class Experience extends CommonEntity {
-  @Column()
+  @Column({ type: "varchar", length: 100, default: null  })
   company: string;
 
-  @Column()
+  @Column({ type: "varchar", length: 100, default: null  })
   location: string;
 
-  @Column()
+  @Column({ type: "datetime", default: null  })
   startDate: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "datetime", default: null  })
   endDate: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", default: null  })
   description: string;
 
   @Column({ type: "int" })
