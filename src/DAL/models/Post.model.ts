@@ -20,7 +20,7 @@ export class Post extends CommonEntity {
 
   @OneToOne(() => ImageModel)
   @JoinColumn()
-  image?: ImageModel
+  imageId?: ImageModel
 
   @Column({ type: "text" })
   content: string;
