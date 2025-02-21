@@ -20,15 +20,15 @@ export class Post extends CommonEntity {
 
   @OneToOne(() => ImageModel, { onDelete: "CASCADE" })
   @JoinColumn()
-  imageId?: ImageModel
+  image?: ImageModel
 
-  @Column({ type: "text" })
+  @Column({ type: "varchar", default: null  })
   content: string;
 
   @Column({ type: "int" })
   user_id: number;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, { onDelete: "CASCADE", nullable: false })
   @JoinColumn({ name: "user_id" })
   user: User;
 

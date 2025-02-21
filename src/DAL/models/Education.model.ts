@@ -5,7 +5,7 @@ import { EDegreeType } from "../../Core/app/enums";
 
 @Entity({ name: "educations" })
 export class Education extends CommonEntity {
-  @Column({ type: "varchar", length: 100 })
+  @Column({ type: "varchar", length: 100, default: null  })
   schoolName: string;
 
   @Column({
@@ -15,16 +15,16 @@ export class Education extends CommonEntity {
   })
   degree: EDegreeType;
 
-  @Column()
+  @Column({ type: "varchar", length: 100, default: null  })
   faculty: string;
 
-  @Column()
+  @Column({ type: "datetime", default: null  })
   startDate: Date;
 
-  @Column({ nullable: true })
+  @Column({type: "datetime", nullable: true })
   endDate: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", default: null  })
   imageUrl?: string;
 
   @Column({ type: "int" })

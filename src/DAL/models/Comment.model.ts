@@ -5,13 +5,13 @@ import { CommonEntity } from "./Common.model";
 
 @Entity({ name: "comments" })
 export class Comment extends CommonEntity {
-  @Column()
+  @Column({type:"varchar", default: null })
   content: string;
 
-  @Column({ type: "int" })
+  @Column({ type: "int", default: null  })
   user_id: number;
   
-  @Column({ type: "int" })
+  @Column({ type: "int", default: null  })
   post_id: number;
 
   @ManyToOne(() => User, (user) => user.posts)
