@@ -28,6 +28,7 @@ const createCategory = async (req: Request,  res: Response,  next: NextFunction)
     res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
 const updatedCategory = async(req:AuthRequest,res:Response,next:NextFunction)=>{
   try{
   const user = req.user
@@ -35,11 +36,13 @@ const updatedCategory = async(req:AuthRequest,res:Response,next:NextFunction)=>{
     res.json("user not found")
     return
   }
+
   const category_id =Number(req.params)
   if(!category_id){
     res.json("Id is required")
     return
   }
+  
   const{name,description} = req.body
   const dto = new CategoryCreateDto()
   dto.name = name;
@@ -107,9 +110,45 @@ const deletee = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const categoryList = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.perpage) || 5;
+
+    const before_page = (page - 1) * limit;
+    const [ list, total] = await Category.findAndCount({
+      skip: before_page,
+      take: limit,
+    });
+
+    if (list.length === 0) {
+      res.status(404).json({
+        message: "No categories found.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      data: list,
+      pagination: {
+        users: total,
+        currentPage: page,
+        messagesCount: list.length,
+        allPages: Math.ceil(Number(total) / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
 export const CategoryController = () => ({
   deletee,
   createCategory,
     getAll,
     updatedCategory,
+    categoryList
 });

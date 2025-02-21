@@ -156,6 +156,7 @@ const editEducation = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
 const getUserEducation = async(req:AuthRequest,res:Response,next:NextFunction)=>{
   try{
     const user = req.user
@@ -178,6 +179,7 @@ const getUserEducation = async(req:AuthRequest,res:Response,next:NextFunction)=>
   })
 }
 }
+
 const deleteEducation = async (
   req: AuthRequest,
   res: Response,
