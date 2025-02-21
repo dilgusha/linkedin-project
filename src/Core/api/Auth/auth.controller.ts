@@ -157,7 +157,7 @@ const checkEmail = async (req: AuthRequest, res: Response) => {
       .add(appConfig.VALIDITY_MINUTE_MAIL, "minutes")
       .toDate();
 
-   const updateUser= await User.update(user.id, {
+    const updateUser = await User.update(user.id, {
       verifyCode,
       verifyExpiredIn,
     });
@@ -198,7 +198,7 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
       res.json("User not found;");
       return;
     }
-    console.log(user.isVerified)
+    console.log(user.isVerified);
     if (user.isVerified === true) {
       res.json({ message: "Email is already verified" });
       return;
@@ -277,7 +277,9 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
     }
     res
       .status(200)
-      .json({ message: "Password reset email sent successfully.Check your email" });
+      .json({
+        message: "Password reset email sent successfully.Check your email",
+      });
   });
 };
 
@@ -328,6 +330,40 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   res.send(`${user.email} mailinin password-ü yeniləndi`);
 };
 
+const aboutMe = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.json("User not found!");
+      return
+    }
+
+    const data = await User.findOne({
+      where: { id: user.id },
+      select: [
+        "name",
+        "surname",
+        "gender",
+        "email",
+        "isVerified",
+        "avatar_path",
+        "about",
+        "birthdate",
+        "phone",
+        "created_at",
+      ],
+    });
+  
+
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
 export const AuthController = () => ({
   register,
   login,
@@ -335,4 +371,5 @@ export const AuthController = () => ({
   CreatePass,
   checkEmail,
   verifyEmail,
+  aboutMe
 });
