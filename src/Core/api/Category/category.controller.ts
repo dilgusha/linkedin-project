@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Category } from "../../../DAL/models/Category.model";
 import { AuthRequest } from "../../../types";
-import { CategoryCreateDto } from "./category.dto";
+import { CategoryUpdateDto } from "./category.dto";
 import { validate } from "class-validator";
 import { formatErrors } from "../../middlewares/error.middleware";
 
@@ -31,12 +31,6 @@ const createCategory = async (req: Request,  res: Response,  next: NextFunction)
 
 const updatedCategory = async(req:AuthRequest,res:Response,next:NextFunction)=>{
   try{
-  const user = req.user
-  if(!user){
-    res.json("user not found")
-    return
-  }
-
   const category_id =Number(req.params)
   if(!category_id){
     res.json("Id is required")
@@ -44,7 +38,7 @@ const updatedCategory = async(req:AuthRequest,res:Response,next:NextFunction)=>{
   }
   
   const{name,description} = req.body
-  const dto = new CategoryCreateDto()
+  const dto = new CategoryUpdateDto()
   dto.name = name;
   dto.description = description;
 
@@ -60,9 +54,12 @@ const updatedCategory = async(req:AuthRequest,res:Response,next:NextFunction)=>{
     res.status(404).json({message:"category not found"})
   return}
 
-  const updatedData = await Category.update(category_id,{
+   await Category.update(category_id,{
     name,
     description
+  })
+  const updatedData = await Category.findOne({
+    where:{id:category_id}
   })
   res.status(200).json({
     message:"Category updated succesfully",
