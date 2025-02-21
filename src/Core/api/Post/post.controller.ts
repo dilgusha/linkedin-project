@@ -8,60 +8,17 @@ import fs, { unlink } from "fs/promises";
 import path from "path";
 import { ImageModel } from "../../../DAL/models/Image.model";
 
-// const create = async (req: AuthRequest, res: Response, next:NextFunction) => {
-//   try {
-//     const user = req.user;
-//     const img = req.img;
-
-//     if (!user) {
-//       res.status(401).json({ message: "Unauthorized" });
-//       return;
-//     }
-
-//     const { content } = req.body;
-
-//     const dto = new PostCreateDto();
-//     dto.content = content;
-
-//     const errors = await validate(dto);
-//     if (errors.length > 0) {
-//       res.status(422).json(formatErrors(errors));
-//       throw new Error("Validation failed");
-//     }
-
-//     const newData = new Post();
-//     newData.content = dto.content;
-//     newData.image = img;
-//     newData.user_id = user.id;
-
-//     await Post.save(newData);
-
-//     res.status(201).json({
-//       id: newData.id,
-//       message: "Post created successfully",
-//     });
-//   } catch (error:any) {
-//     if (req.img){
-//       console.log("sdcfgvbhkm")
-//             const filePath = path.join(process.cwd(), 'uploads', req.img.filename);
-//             await unlink(filePath).catch(() => console.error('Failed to delete uploaded file'));
-//     }
-//         console.log('Upload failed', error );
-//   }
-
-// };
-
-
-const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const create = async (req: AuthRequest, res: Response, next:NextFunction) => {
   try {
     const user = req.user;
+    const img = req.img;
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
-    const { content, imageId } = req.body;
+    const { content } = req.body;
 
     const dto = new PostCreateDto();
     dto.content = content;
@@ -72,12 +29,9 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
       throw new Error("Validation failed");
     }
 
-    const image = await ImageModel.findOne({ where: { id: imageId } });
-    if (!image) return next( res.status(404).json({ message: "Image not found" }));
-
     const newData = new Post();
     newData.content = dto.content;
-    newData.imageId = image;
+    newData.image = img;
     newData.user_id = user.id;
 
     await Post.save(newData);
@@ -86,12 +40,18 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
       id: newData.id,
       message: "Post created successfully",
     });
-  } catch (error: any) {
-    console.error("Post creation failed", error);
-    res.status(500).json({ message: "Post creation failed" });
+  } catch (error:any) {
+    if (req.img){
+      console.log("sdcfgvbhkm")
+            const filePath = path.join(process.cwd(), 'uploads', req.img.filename);
+            await unlink(filePath).catch(() => console.error('Failed to delete uploaded file'));
+    }
+        console.log('Upload failed', error );
   }
 
 };
+
+
 const editPost = async (
   req: AuthRequest,
   res: Response,

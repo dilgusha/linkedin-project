@@ -9,5 +9,5 @@ const controller = CategoryController();
 categoryRoutes.post("/create",  useAuth,  roleCheck([ERoleType.ADMIN]),  controller.createCategory);
 categoryRoutes.delete("/delete/:id", controller.deletee);
 categoryRoutes.get("/all", controller.getAll);
-categoryRoutes.post("/updated category",useAuth,controller.updatedCategory)
+categoryRoutes.post("/update/:id",useAuth,roleCheck([ERoleType.ADMIN]),controller.updatedCategory)
 categoryRoutes.get("/list", useAuth, controller.categoryList)

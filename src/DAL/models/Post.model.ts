@@ -20,7 +20,7 @@ export class Post extends CommonEntity {
 
   @OneToOne(() => ImageModel, { onDelete: "CASCADE" })
   @JoinColumn()
-  imageId?: ImageModel
+  image?: ImageModel
 
   @Column({ type: "text" })
   content: string;
