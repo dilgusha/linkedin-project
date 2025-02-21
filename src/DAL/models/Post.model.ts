@@ -6,18 +6,21 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from "typeorm";
 import { User } from "./User.model";
 import { Comment } from "./Comment.model";
 import { CommonEntity } from "./Common.model";
+import { ImageModel } from "./Image.model";
 
 @Entity({ name: "posts" })
 export class Post extends CommonEntity {
   @ManyToMany(() => User, (user) => user.likedPosts)
   likedUsers: User[];
 
-  @Column({ type: "varchar", length: 150 })
-  imagesPath?: string;
+  @OneToOne(() => ImageModel)
+  @JoinColumn()
+  image?: ImageModel
 
   @Column({ type: "text" })
   content: string;

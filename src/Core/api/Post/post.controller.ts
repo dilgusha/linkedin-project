@@ -4,11 +4,13 @@ import { PostCreateDto, PostUpdateDto } from "./post.dto";
 import { validate } from "class-validator";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Post } from "../../../DAL/models/Post.model";
-import fs from "fs/promises";
+import fs, { unlink } from "fs/promises";
+import path from "path";
 
-const create = async (req: AuthRequest, res: Response) => {
+const create = async (req: AuthRequest, res: Response, next:NextFunction) => {
   try {
     const user = req.user;
+    const img = req.img;
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
@@ -23,16 +25,12 @@ const create = async (req: AuthRequest, res: Response) => {
     const errors = await validate(dto);
     if (errors.length > 0) {
       res.status(422).json(formatErrors(errors));
-      return;
+      throw new Error("Validation failed");
     }
-
-    // const images = req.files as Record<string, Express.Multer.File[]>;
-    const image = req.file;
 
     const newData = new Post();
     newData.content = dto.content;
-    // newData.imagesPath = images["images"]?.map((image) => image.filename) || [];
-    newData.imagesPath = image?.filename;
+    newData.image = img;
     newData.user_id = user.id;
 
     await Post.save(newData);
@@ -41,24 +39,15 @@ const create = async (req: AuthRequest, res: Response) => {
       id: newData.id,
       message: "Post created successfully",
     });
-  } catch (error: any) {
-
-    if (req.file) {
-      console.log("file var", req.file.filename);
-      const filePath = `uploads/${req.file.filename}`;
-
-      try {
-        await fs.access(filePath);
-        console.log("file exists");
-
-        await fs.unlink(filePath);
-        console.log("file deleted");
-      } catch (err) {
-        console.log("Fayl mövcud deyil və ya silinərkən xəta baş verdi:", err);
-      }
+  } catch (error:any) {
+    if (req.img){
+      console.log("sdcfgvbhkm")
+            const filePath = path.join(process.cwd(), 'uploads', req.img.filename);
+            await unlink(filePath).catch(() => console.error('Failed to delete uploaded file'));
     }
-    res.status(500).json({ message: "Internal server error" });
+        console.log('Upload failed', error );
   }
+
 };
 
 const editPost = async (
