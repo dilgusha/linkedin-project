@@ -4,10 +4,10 @@ import { ImageModel } from '../../../DAL/models/Image.model';
 import path from 'path';
 import { unlink } from 'fs/promises';
 
-const uploadImage = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const uploadImage = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void>  => {
     try {
         const file = req.file;
-        if (!file) return next(res.status(400).json({ message: 'No file uploaded' }));
+        if (!file) return next();
 
         const port = req.socket.localPort;
         const image = ImageModel.create({
@@ -16,13 +16,22 @@ const uploadImage = async (req: AuthRequest, res: Response, next: NextFunction) 
         });
 
         await ImageModel.save(image);
-        res.json(image);
+
+        const imageUrl = await ImageModel.findOne({
+            where:{id: image.id}
+        })
+
+        if(!imageUrl) return next(res.status(400).json({ message: 'No file uploaded' }));
+        
+        req.img = imageUrl
+        
+        next();
     } catch (error) {
         if (req.file) {
             const filePath = path.join(process.cwd(), 'uploads', req.file.filename);
             await unlink(filePath).catch(() => console.error('Failed to delete uploaded file'));
         }
-        res.status(500).json({ message: 'Upload failed', error });
+        return next(res.status(500).json({ message: 'Upload failed', error }));
     }
 }
 
