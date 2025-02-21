@@ -35,9 +35,7 @@ export class Experience extends CommonEntity {
   @JoinColumn({ name: "user_id" })
   user: User[];
 
-  @ManyToMany(() => Category, (category) => category.experiences, {
-    onDelete: "CASCADE",
-  })
+  @ManyToMany(() => Category, (category) => category.experiences)
   @JoinTable({ name: "experiences_categories" })
   categories: Category[];
 }
