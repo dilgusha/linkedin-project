@@ -85,8 +85,11 @@ export class User extends CommonEntity {
   })
   likedPosts: Post[];
 
-  @OneToMany(() => Connection, (connection) => connection.user)
-  connections: User[];
+  @OneToMany(() => Connection, (connection) => connection.requester, { cascade: true })
+  sentConnections: Connection[];
+  
+  @OneToMany(() => Connection, (connection) => connection.receiver, { cascade: true })
+  receivedConnections: Connection[];
 
   @ManyToMany(() => Vacancy, (vacancy) => vacancy.appliedUsers)
   @JoinTable()

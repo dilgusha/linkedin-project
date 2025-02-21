@@ -39,7 +39,7 @@ export class CreateUserDTO {
   @MaxLength(15, { message: "Pass is too long" })
   password: string;
 
-  @IsDefined()
+  @IsOptional()
   // @IsDate()
   // @Type(() => Date) 
   birthdate: Date;
@@ -52,7 +52,7 @@ export class CreateUserDTO {
   @IsString()
   avatar_path: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsPhoneNumber()
   @Matches(/^\+994\d{9}$/, {
     message: "Phone number must be in +994XXXXXXXXX format",
