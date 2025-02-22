@@ -19,6 +19,11 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
       return;
     }
 
+    if (requester.id === receiverId) {
+      res.json("Siz ozunuze request ata bilmezsiz");
+      return;
+    }
+
     const receiver = await User.findOne({ where: { id: receiverId } });
     if (!receiver) {
       res.status(404).json({ message: "User not found" });
@@ -26,11 +31,13 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
     }
 
     const existingConnection = await Connection.findOne({
-        where: { requester: { id: requester.id }, receiver: { id: receiver.id } },
-        relations: ["requester", "receiver"],  
-      });
-
-    console.log(existingConnection);
+      where: {
+        requester_id: requester.id,
+        receiver_id: receiver.id,
+        status: ConnectionStatus.PENDING || ConnectionStatus.ACCEPTED,
+      },
+      relations: ["requester", "receiver"],
+    });
 
     if (existingConnection) {
       res.status(400).json({ message: "Connection already exists" });
@@ -38,8 +45,8 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
     }
 
     const connection = Connection.create({
-      requester,
-      receiver,
+      requester_id: requester.id,
+      receiver_id: receiver.id,
       status: ConnectionStatus.PENDING,
     });
 
@@ -56,19 +63,27 @@ const acceptConnection = async (req: AuthRequest, res: Response) => {
     const receiver = req.user;
     const connectionId = Number(req.params.id);
 
-if(!receiver){
-    res.json("User not found!")
-    return
-}
+    if (!receiver) {
+      res.json("User not found!");
+      return;
+    }
+
+    if (!connectionId) {
+      res.json("Connection id not found!");
+      return;
+    }
 
     const connection = await Connection.findOne({
-        where: { id: connectionId, receiver: { id: receiver.id } },
-        relations: ["requester", "receiver"],  
-      });
+      where: { id: connectionId, receiver_id: receiver.id },
+    });
 
-      
     if (!connection) {
       res.status(404).json({ message: "Connection not found" });
+      return;
+    }
+
+    if (connection.status !== ConnectionStatus.PENDING) {
+      res.json("Bele bir elaqe isteyi yoxdur");
       return;
     }
 
@@ -81,7 +96,89 @@ if(!receiver){
   }
 };
 
+const rejectConnection = async (req: AuthRequest, res: Response) => {
+  try {
+    const receiver = req.user;
+    const { connectionId } = req.body;
+
+    if (!receiver) {
+      res.json("User not found!");
+      return;
+    }
+
+    if (!connectionId) {
+      res.json("Connection id not found!");
+      return;
+    }
+
+    const connection = await Connection.findOne({
+      where: {
+        id: connectionId,
+        receiver_id: receiver.id,
+        status: ConnectionStatus.PENDING,
+      },
+    });
+
+    if (!connection) {
+      res.status(404).json({ message: "Connection not found" });
+      return;
+    }
+
+    connection.status = ConnectionStatus.REJECTED;
+    await connection.save();
+
+    res.status(200).json({ message: "Connection rejected", connection });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+const list = async (req: AuthRequest, res: Response) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.perpage) || 5;
+
+    const receiver = req.user;
+
+    if (!receiver) {
+      res.json("User not found!");
+      return;
+    }
+
+    const before_page = (page - 1) * limit;
+    const [list, total] = await Connection.findAndCount({
+      where: { receiver_id: receiver.id, status: ConnectionStatus.PENDING },
+      skip: before_page,
+      take: limit,
+    });
+
+    if (list.length === 0) {
+      res.status(404).json({
+        message: "No connects found.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      data: list,
+      pagination: {
+        users: total,
+        currentPage: page,
+        messagesCount: list.length,
+        allPages: Math.ceil(Number(total) / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
 export const ConnectionController = () => ({
   sendConnectionRequest,
   acceptConnection,
+  rejectConnection,
+  list
 });
