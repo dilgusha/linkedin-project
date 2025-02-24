@@ -8,7 +8,7 @@ import fs, { unlink } from "fs/promises";
 import path from "path";
 import { ImageModel } from "../../../DAL/models/Image.model";
 
-const create = async (req: AuthRequest, res: Response, next:NextFunction) => {
+const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
     const img = req.img;
@@ -40,17 +40,17 @@ const create = async (req: AuthRequest, res: Response, next:NextFunction) => {
       id: newData.id,
       message: "Post created successfully",
     });
-  } catch (error:any) {
-    if (req.img){
-      console.log("sdcfgvbhkm")
-            const filePath = path.join(process.cwd(), 'uploads', req.img.filename);
-            await unlink(filePath).catch(() => console.error('Failed to delete uploaded file'));
+  } catch (error: any) {
+    if (req.img) {
+      console.log("sdcfgvbhkm");
+      const filePath = path.join(process.cwd(), "uploads", req.img.filename);
+      await unlink(filePath).catch(() =>
+        console.error("Failed to delete uploaded file")
+      );
     }
-        console.log('Upload failed', error );
+    console.log("Upload failed", error);
   }
-
 };
-
 
 const editPost = async (
   req: AuthRequest,
@@ -263,10 +263,104 @@ const deletePost = async (
   }
 };
 
+const getById = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const post_id = Number(req.params.id);
+
+    if (!post_id) {
+      res.json("Id is required");
+      return;
+    }
+
+    const post = await Post.findOne({
+      where: { id: post_id },
+      relations: ["user", "likedUsers"],
+      select: {
+        id: true,
+        content: true,
+        //image?:true,
+        created_at: true,
+        user: {
+          id: true,
+          name: true,
+          surname: true,
+          avatar_path: true,
+        },
+        likedUsers: {
+          id: true,
+          name: true,
+          surname: true,
+          avatar_path: true,
+        },
+      },
+    });
+
+    if (!post) {
+      res.status(401).json("Post is not found");
+      return;
+    }
+
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+const userPosts = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user;
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+
+    if (!user) {
+      res.status(401).json("User is not found");
+      return;
+    }
+
+    const before_page = (page - 1) * limit;
+    const [list, total] = await Post.findAndCount({
+      where: { user_id: user.id },
+      skip: before_page,
+      take: limit,
+      relations: ["likedUsers"],
+      select: {
+        id: true,
+        content: true,
+        created_at: true,
+        likedUsers: {
+          id: true,
+          name: true,
+          surname: true,
+          avatar_path: true,
+        },
+      },
+    });
+
+    res.status(200).json({
+      data: list,
+      pagination: {
+        total,
+        page,
+        limit: list.length,
+        per_page: Math.ceil(Number(total) / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 export const PostController = () => ({
   create,
   editPost,
   likePost,
   unlikePost,
   deletePost,
+  getById,
+  userPosts,
 });

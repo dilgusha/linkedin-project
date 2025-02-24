@@ -246,7 +246,7 @@ const userDelete = async (req: Request, res: Response, next: NextFunction) => {
 const adminList = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.perpage) || 5;
+    const limit = Number(req.query.limit) || 5;
 
     const before_page = (page - 1) * limit;
     const [list, total] = await User.findAndCount({
@@ -255,19 +255,13 @@ const adminList = async (req: Request, res: Response, next: NextFunction) => {
       take: limit,
     });
 
-if (list.length === 0) {
-  res.status(404).json({
-    message: "No admins found.",
-  });
-  return;
-}
     res.status(200).json({
       data: list,
       pagination: {
-        admins: total,
-        currentPage: page,
-        messagesCount: list.length,
-        allPages: Math.ceil(total / limit),
+        total,
+        page,
+        limit: list.length,
+        per_page: Math.ceil(Number(total) / limit),
       },
     });
   } catch (error) {
@@ -281,7 +275,7 @@ if (list.length === 0) {
 const userList = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.perpage) || 5;
+    const limit = Number(req.query.limit) || 5;
 
     const before_page = (page - 1) * limit;
     const [ list, total] = await User.findAndCount({
@@ -290,20 +284,13 @@ const userList = async (req: Request, res: Response, next: NextFunction) => {
       take: limit,
     });
 
-    if (list.length === 0) {
-      res.status(404).json({
-        message: "No users found.",
-      });
-      return;
-    }
-
     res.status(200).json({
       data: list,
       pagination: {
-        users: total,
-        currentPage: page,
-        messagesCount: list.length,
-        allPages: Math.ceil(Number(total) / limit),
+        total,
+        page,
+        limit: list.length,
+        per_page: Math.ceil(Number(total) / limit),
       },
     });
   } catch (error) {

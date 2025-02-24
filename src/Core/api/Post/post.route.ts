@@ -13,3 +13,5 @@ postRoutes.put("/update/:id", useAuth, controller.editPost);
 postRoutes.get("/:id/like", useAuth, controller.likePost);
 postRoutes.get("/:id/unlike", useAuth, controller.unlikePost);
 postRoutes.delete("/delete/:id", useAuth, controller.deletePost);
+postRoutes.get("/get/:id", useAuth, controller.getById);
+postRoutes.get("/list", useAuth, controller.userPosts);

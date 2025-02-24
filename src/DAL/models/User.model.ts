@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, Unique } from "typeorm";
 import { Experience } from "./Experience.model";
 import { Education } from "./Education.model";
 import { Post } from "./Post.model";
@@ -8,6 +8,7 @@ import { CommonEntity } from "./Common.model";
 import { EGenderType, ERoleType } from "../../Core/app/enums";
 
 @Entity({ name: "users" })
+@Unique(["phone"]) 
 export class User extends CommonEntity {
   @Column({ type: "varchar", length: 150, default:null})
   name: string;

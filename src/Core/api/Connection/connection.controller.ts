@@ -3,6 +3,8 @@ import { AuthRequest } from "../../../types";
 import { User } from "../../../DAL/models/User.model";
 import { Connection } from "../../../DAL/models/Connection.model";
 import { ConnectionStatus } from "../../app/enums";
+import { In } from "typeorm";
+import { errorMessages } from "../../app/helpers";
 
 const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
   try {
@@ -20,7 +22,7 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
     }
 
     if (requester.id === receiverId) {
-      res.json("Siz ozunuze request ata bilmezsiz");
+      res.status(400).json("Siz ozunuze request ata bilmezsiz");
       return;
     }
 
@@ -30,17 +32,27 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
       return;
     }
 
+    // const connectionCount = await Connection.count({
+    //   where: {},
+    // });
+
+    // const isExist = await Connection.exists({
+    //   where: {},
+    // });
+
     const existingConnection = await Connection.findOne({
       where: {
-        requester_id: requester.id,
-        receiver_id: receiver.id,
+        requester_id: In([requester.id, receiver.id]), // requester.id || receiver.id, // @In // @Or
+        receiver_id: receiver.id || requester.id,
         status: ConnectionStatus.PENDING || ConnectionStatus.ACCEPTED,
       },
       relations: ["requester", "receiver"],
     });
 
     if (existingConnection) {
-      res.status(400).json({ message: "Connection already exists" });
+      res.status(400).json({
+        message: errorMessages.required("name"),
+      });
       return;
     }
 
@@ -136,7 +148,7 @@ const rejectConnection = async (req: AuthRequest, res: Response) => {
 const list = async (req: AuthRequest, res: Response) => {
   try {
     const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.perpage) || 5;
+    const limit = Number(req.query.limit) || 5;
 
     const receiver = req.user;
 
@@ -150,22 +162,27 @@ const list = async (req: AuthRequest, res: Response) => {
       where: { receiver_id: receiver.id, status: ConnectionStatus.PENDING },
       skip: before_page,
       take: limit,
+      relations: ["requester"],
+      select: {
+        id: true,
+        status: true,
+        created_at: true,
+        requester: {
+          id: true,
+          name: true,
+          surname: true,
+          avatar_path: true,
+        },
+      },
     });
-
-    if (list.length === 0) {
-      res.status(404).json({
-        message: "No connects found.",
-      });
-      return;
-    }
 
     res.status(200).json({
       data: list,
       pagination: {
-        users: total,
-        currentPage: page,
-        messagesCount: list.length,
-        allPages: Math.ceil(Number(total) / limit),
+        total,
+        page,
+        limit: list.length,
+        per_page: Math.ceil(Number(total) / limit),
       },
     });
   } catch (error) {
@@ -180,5 +197,5 @@ export const ConnectionController = () => ({
   sendConnectionRequest,
   acceptConnection,
   rejectConnection,
-  list
+  list,
 });
