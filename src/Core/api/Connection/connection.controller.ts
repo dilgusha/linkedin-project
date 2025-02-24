@@ -32,27 +32,17 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    // const connectionCount = await Connection.count({
-    //   where: {},
-    // });
-
-    // const isExist = await Connection.exists({
-    //   where: {},
-    // });
-
     const existingConnection = await Connection.findOne({
       where: {
-        requester_id: In([requester.id, receiver.id]), // requester.id || receiver.id, // @In // @Or
-        receiver_id: receiver.id || requester.id,
+        requester_id: In([requester.id, receiver.id]), 
+        receiver_id: In([requester.id, receiver.id]),
         status: ConnectionStatus.PENDING || ConnectionStatus.ACCEPTED,
       },
       relations: ["requester", "receiver"],
     });
 
     if (existingConnection) {
-      res.status(400).json({
-        message: errorMessages.required("name"),
-      });
+      res.status(400).json("Request or Connection already exists");
       return;
     }
 
