@@ -36,7 +36,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
     const user = await User.findOne({ where: { email: email } });
     if (user) {
-      res.json("Bu emaile uygun user artiq movcuddur");
+      res.status(400).json("Bu emaile uygun user artiq movcuddur");
       return;
     }
 

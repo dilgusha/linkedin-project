@@ -14,4 +14,5 @@ export interface IImage extends ImageModel {
 export interface AuthRequest extends Request {
     user?: IUser;
    img?:IImage
+   pagination
 }
