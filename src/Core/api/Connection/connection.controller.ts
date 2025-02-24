@@ -181,7 +181,7 @@ const list = async (req: AuthRequest, res: Response) => {
       pagination: {
         total,
         page,
-        limit: list.length,
+        items_on_page: list.length,
         per_page: Math.ceil(Number(total) / limit),
       },
     });

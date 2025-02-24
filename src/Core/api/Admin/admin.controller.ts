@@ -260,7 +260,7 @@ const adminList = async (req: Request, res: Response, next: NextFunction) => {
       pagination: {
         total,
         page,
-        limit: list.length,
+        items_on_page: list.length,
         per_page: Math.ceil(Number(total) / limit),
       },
     });
@@ -289,7 +289,7 @@ const userList = async (req: Request, res: Response, next: NextFunction) => {
       pagination: {
         total,
         page,
-        limit: list.length,
+        items_on_page: list.length,
         per_page: Math.ceil(Number(total) / limit),
       },
     });

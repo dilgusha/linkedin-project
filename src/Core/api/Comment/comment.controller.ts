@@ -155,7 +155,7 @@ const commentList = async (req: AuthRequest, res: Response, next: NextFunction) 
       pagination: {
         total,
         page,
-        limit: list.length,
+        items_on_page: list.length,
         per_page: Math.ceil(Number(total) / limit),
       },
     });
