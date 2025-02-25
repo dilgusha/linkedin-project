@@ -12,13 +12,14 @@ import { messageRoutes } from "../Core/api/Message/message.route";
 import { notificationRoutes } from "../Core/api/Notification/notification.route";
 import { authRoutes } from "../Core/api/Auth/auth.route";
 import { uploadRoutes } from "../Core/api/uploads/upload.route";
+import { roleCheck, useAuth } from "../Core/middlewares/auth.middleware";
 
 export const v1Routes = Router();
 
 v1Routes.use("/auth", authRoutes);
 v1Routes.use("/admin", adminRoutes);
 v1Routes.use("/user", userRoutes);
-v1Routes.use("/vacancy", vacancyRoutes);
+v1Routes.use("/vacancy",useAuth, roleCheck(["COMPANY"]), vacancyRoutes);
 v1Routes.use("/post", postRoutes);
 v1Routes.use("/category", categoryRoutes);
 v1Routes.use("/education", educationRoutes);

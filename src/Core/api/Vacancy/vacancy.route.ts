@@ -6,6 +6,7 @@ import { uploads } from "../../middlewares/multer.middleware";
 export const vacancyRoutes = Router();
 const controller = VacancyController();
 
-vacancyRoutes.post("/create", useAuth, roleCheck(["COMPANY"]), uploads.single("image"), controller.create);
-vacancyRoutes.delete("/delete/:id", useAuth, roleCheck(["COMPANY"]),  controller.deletee);
-vacancyRoutes.get("/get-by-user", useAuth, roleCheck(["COMPANY"]),  controller.getByUser);
+vacancyRoutes.post("/create", uploads.single("image"), controller.create);
+vacancyRoutes.delete("/delete/:id", controller.deletee);
+vacancyRoutes.get("/get-by-user", controller.getByUser);
+vacancyRoutes.get("/applied-vacancies", controller.getAppliedVacancies);

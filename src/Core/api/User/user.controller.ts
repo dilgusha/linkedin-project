@@ -118,6 +118,7 @@ const applyVacancy = async (req: AuthRequest, res: Response) => {
 
     const vacancy = await Vacancy.findOne({
       where: { id: vacancy_id },
+      select: ["appliedUsers"]
     });
 
     if (!vacancy) {
@@ -128,23 +129,24 @@ const applyVacancy = async (req: AuthRequest, res: Response) => {
     const existingUser = await User.findOne({
       where: { id: user.id },
       relations: ["appliedVacancies"],
+      select: ["name", "surname", "email", "companyName", "about", "id"]
     });
-
+    
     if (!existingUser) {
       res.json({ message: "User tapılmadı" });
       return;
     }
 
-    if (user.appliedVacancies.some((v) => v.id === vacancy.id)) {
+    if (existingUser.appliedVacancies.some((v) => v.id === vacancy.id)) {
       res
         .status(400)
         .json({ message: "Siz artıq bu vakansiyaya müraciət etmisiniz." });
       return;
     }
 
-    user.appliedVacancies.push(vacancy);
-    await User.save(user);
-
+    existingUser.appliedVacancies.push(vacancy);
+    await existingUser.save();
+    
     res.status(201).json({ message: "Müraciət uğurla tamamlandı." });
   } catch (error) {
     console.error("Error applying to vacancy:", error);

@@ -93,6 +93,12 @@ export class User extends CommonEntity {
   receivedConnections: Connection[];
 
   @ManyToMany(() => Vacancy, (vacancy) => vacancy.appliedUsers)
-  @JoinTable()
+  @JoinTable(
+    {
+      name: "users_applied_vacancies",
+      joinColumn: { name: "user_id" },
+      inverseJoinColumn: { name: "vacancy_id" },
+    }
+  )
   appliedVacancies: Vacancy[];
 }

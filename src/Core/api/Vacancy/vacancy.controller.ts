@@ -5,6 +5,7 @@ import { validate } from "class-validator";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Vacancy } from "../../../DAL/models/Vacancy.model";
 import fs from "fs";
+import { User } from "../../../DAL/models/User.model";
 
 const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -101,8 +102,26 @@ const getByUser = async (
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+const getAppliedVacancies = async (req: AuthRequest, res:Response, next: NextFunction) => {
+  const user = req.user
+  if (!user) {
+    res.status(401).json("user tapilmadi")
+    return
+  }
+  try {
+    const users = await User.find({
+      where: { id: user.id },
+      relations: ["appliedVacancies"],
+      select: ["name", "id", "surname","email"]
+    })
+    res.json(users)
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+}
 export const VacancyController = () => ({
   create,
   deletee,
   getByUser,
+  getAppliedVacancies
 });
