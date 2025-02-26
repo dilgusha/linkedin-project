@@ -6,7 +6,8 @@ import {  uploadImage } from "../uploads/upload.controller";
 export const postRoutes = Router();
 const controller = PostController();
 
-postRoutes.post("/create", uploads.single("image"), uploadImage, controller.create);
+postRoutes.post("/create", uploads.single("image"), controller.create);
+//postRoutes.post("/create", uploads.single("image"), uploadImage, controller.create);
 postRoutes.put("/update/:id", controller.editPost);
 // postRoutes.post("/:id/like", useAuth, controller.toggleLike); // liked ? -> remove // not liked ? -> add
 postRoutes.get("/:id/like", controller.likePost);

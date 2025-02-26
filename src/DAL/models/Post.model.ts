@@ -18,9 +18,12 @@ export class Post extends CommonEntity {
   @ManyToMany(() => User, (user) => user.likedPosts)
   likedUsers: User[];
 
-  @OneToOne(() => ImageModel, { onDelete: "CASCADE" })
-  @JoinColumn()
-  image?: ImageModel
+  // @OneToOne(() => ImageModel, { onDelete: "CASCADE" })
+  // @JoinColumn()
+  // image?: ImageModel
+
+  @Column({ type: "varchar", length: 150 })
+  imagePath?: string;
 
   @Column({ type: "varchar", default: null  })
   content: string;

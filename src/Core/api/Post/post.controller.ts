@@ -8,10 +8,9 @@ import fs, { unlink } from "fs/promises";
 import path from "path";
 import { ImageModel } from "../../../DAL/models/Image.model";
 
-const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const create = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
-    const img = req.img;
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
@@ -19,6 +18,7 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     }
 
     const { content } = req.body;
+    const image = req.file;
 
     const dto = new PostCreateDto();
     dto.content = content;
@@ -26,12 +26,12 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const errors = await validate(dto);
     if (errors.length > 0) {
       res.status(422).json(formatErrors(errors));
-      throw new Error("Validation failed");
+      return;
     }
 
     const newData = new Post();
     newData.content = dto.content;
-    newData.image = img;
+    newData.imagePath = image?.filename;
     newData.user_id = user.id;
 
     await Post.save(newData);
@@ -41,16 +41,25 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
       message: "Post created successfully",
     });
   } catch (error: any) {
-    if (req.img) {
-      console.log("sdcfgvbhkm");
-      const filePath = path.join(process.cwd(), "uploads", req.img.filename);
-      await unlink(filePath).catch(() =>
-        console.error("Failed to delete uploaded file")
-      );
+
+    if (req.file) {
+      console.log("file var", req.file.filename);
+      const filePath = `uploads/${req.file.filename}`;
+
+      try {
+        await fs.access(filePath);
+        console.log("file exists");
+
+        await fs.unlink(filePath);
+        console.log("file deleted");
+      } catch (err) {
+        console.log("Fayl mövcud deyil və ya silinərkən xəta baş verdi:", err);
+      }
     }
-    console.log("Upload failed", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const editPost = async (
   req: AuthRequest,
