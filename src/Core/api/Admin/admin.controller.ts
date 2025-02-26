@@ -4,7 +4,12 @@ import { appConfig } from "../../../consts";
 import { User } from "../../../DAL/models/User.model";
 import { validate } from "class-validator";
 import { transporter } from "../../../helpers";
-import { CreateUserByAdminDTO, EditUserByAdminDTO } from "./admin.dto";
+import {
+  CreatePremiumPackageDTO,
+  CreateUserByAdminDTO,
+  EditUserByAdminDTO,
+  UpdatePremiumPackageDTO,
+} from "./admin.dto";
 import { In } from "typeorm";
 import { ERoleType } from "../../app/enums";
 import { formatErrors } from "../../middlewares/error.middleware";
@@ -288,23 +293,74 @@ const RoleList = async (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json(ERoleType);
 };
 
-const createPremiumPackage = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const createPremiumPackage = async (req: Request, res: Response) => {
   try {
     const { name, monthly_price, annual_price } = req.body;
 
-    const newData = await Package.create({
+    const dto = new CreatePremiumPackageDTO();
+    dto.name = name;
+    dto.monthly_price = monthly_price;
+    dto.annual_price = annual_price;
+
+    const errors = await validate(dto);
+
+    if (errors.length > 0) {
+      res.status(422).json(formatErrors(errors));
+      return;
+    }
+
+    const newPackage = await Package.create({
       name,
       monthly_price,
       annual_price,
     }).save();
 
-    res.status(201).json({
-      data: newData,
+    res.status(201).json({ data: newPackage });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error instanceof Error ? error.message : error,
     });
+  }
+};
+
+const updatePremiumPackage = async (req: Request, res: Response) => {
+  try {
+    const packageId = Number(req.params.id);
+
+    if(!packageId){
+        res.status(400).json({ message: "Package id is required!" });
+        return;
+      }
+
+      const premiumPackage = await Package.findOne({ where: { id: packageId } })
+
+      if(!premiumPackage){
+        res.status(404).json({ message: "Package not found!" });
+        return;
+      }   
+
+    const { name, monthly_price, annual_price } = req.body;
+
+    const dto = new UpdatePremiumPackageDTO();
+    dto.name = name;
+    dto.monthly_price = monthly_price;
+    dto.annual_price = annual_price;
+
+    const errors = await validate(dto);
+
+    if (errors.length > 0) {
+      res.status(422).json(formatErrors(errors));
+      return;
+    }
+
+    const updatePackage = await Package.update(packageId ,{
+      name,
+      monthly_price,
+      annual_price,
+    });
+
+    res.status(201).json({ data: premiumPackage });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -321,4 +377,5 @@ export const AdminController = () => ({
   userList,
   RoleList,
   createPremiumPackage,
+  updatePremiumPackage
 });

@@ -13,9 +13,6 @@ export class Package extends CommonEntity {
     @Column({ type: "decimal", precision: 10, scale: 2, default: null })
     annual_price: number;
 
-    @Column("decimal", { precision: 10, scale: 2 })
-    amount: number;
-
     @Column({ type: "varchar", length: 10, default: "USD" })
     currency: string;
 

@@ -4,6 +4,7 @@ import {
   IsDefined,
   IsEmail,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -75,4 +76,40 @@ export class EditUserByAdminDTO {
   @IsOptional()
   @IsString()
   role: string;
+}
+
+export class CreatePremiumPackageDTO {
+  @IsDefined({ message: "Name is required" })
+  @IsString()
+  @MaxLength(50)
+  @MinLength(3)
+  name: string;
+
+  @IsDefined()
+  @IsNumber()
+  @MinLength(1)
+  monthly_price: number;
+
+  @IsDefined()
+  @IsNumber()
+  @MinLength(1)
+  annual_price: number;
+}
+
+export class UpdatePremiumPackageDTO {
+  @IsOptional({ message: "Name is required" })
+  @IsString()
+  @MaxLength(50)
+  @MinLength(3)
+  name: string;
+
+  @IsOptional()
+  @IsNumber()
+  @MinLength(1)
+  monthly_price: number;
+
+  @IsOptional()
+  @IsNumber()
+  @MinLength(1)
+  annual_price: number;
 }
