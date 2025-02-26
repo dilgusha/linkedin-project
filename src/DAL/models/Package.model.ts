@@ -8,10 +8,10 @@ export class Package extends CommonEntity {
     name: string;
 
     @Column({ type: "decimal", precision: 10, scale: 2, default: null })
-    monthly_price: string;
+    monthly_price: number;
 
     @Column({ type: "decimal", precision: 10, scale: 2, default: null })
-    annual_price: string;
+    annual_price: number;
 
     @Column("decimal", { precision: 10, scale: 2 })
     amount: number;

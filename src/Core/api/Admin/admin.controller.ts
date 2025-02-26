@@ -6,25 +6,25 @@ import { validate } from "class-validator";
 import { transporter } from "../../../helpers";
 import { CreateUserByAdminDTO, EditUserByAdminDTO } from "./admin.dto";
 import { In } from "typeorm";
-import { ERoleType } from "../../app/enums"; 
+import { ERoleType } from "../../app/enums";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Package } from "../../../DAL/models/Package.model";
 
 const userCreate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
-        name,
-        surname,
-        gender,
-        email,
-        role,
-        companyName,
-        password,
-        birthdate,
-        phone,
-        about,
-        isVisibility,
-      } = req.body;
+      name,
+      surname,
+      gender,
+      email,
+      role,
+      companyName,
+      password,
+      birthdate,
+      phone,
+      about,
+      isVisibility,
+    } = req.body;
 
     if (role && !(role in ERoleType)) {
       const error = new Error(`Invalid role! Allowed roles: ${ERoleType}`);
@@ -46,7 +46,7 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
     dto.gender = gender;
     dto.email = email;
     dto.password = password;
-    dto.birthdate = birthdate;
+    dto.birthdate = new Date(birthdate);
     dto.role = role;
     dto.companyName = companyName;
     dto.phone = phone;
@@ -57,39 +57,32 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
 
     if (errors.length > 0) {
       res.status(422).json(formatErrors(errors));
-      return
+      return;
     }
 
     const newUser = User.create({
-        name,
-        surname,
-        gender,
-        email,
-        role,
-        password: newPassword,
-        birthdate,
-        phone,
-        about,
-        isVisibility,
-      });
+      name,
+      surname,
+      gender,
+      email,
+      role,
+      password: newPassword,
+      birthdate,
+      phone,
+      about,
+      isVisibility,
+    });
 
     await newUser.save();
 
     if (role === ERoleType.COMPANY) {
-        newUser.companyName = companyName;
-      }
+      newUser.companyName = companyName;
+    }
 
-      const data = await User.findOne({
-        where: { email },
-        select: [
-          "id",
-          "name",
-          "surname",
-          "email",
-          "role",
-          "created_at",
-        ],
-      });
+    const data = await User.findOne({
+      where: { email },
+      select: ["id", "name", "surname", "email", "role", "created_at"],
+    });
 
     const mailOptions = {
       from: appConfig.EMAIL,
@@ -106,7 +99,6 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
             </ul>`,
     };
 
-
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         res.status(500).json("Error sending email");
@@ -116,7 +108,6 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
         res.status(201).json({ data });
       }
     });
-
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -132,34 +123,25 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
 
     const user = await User.findOne({
       where: { id },
-      select: [
-        "id",
-        "name",
-        "surname",
-        "email",
-        "role",
-        "created_at",
-      ],
+      select: ["id", "name", "surname", "email", "role", "created_at"],
     });
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
-      return;
-    }
+      return;
+    }
 
     if (role && !(role in ERoleType)) {
       const error = new Error(`Invalid role! Allowed roles: ${ERoleType}`);
       throw error;
     }
 
-    if ( !role) {
+    if (!role) {
       res.status(304).json("Hech bir deyishiklik yoxdur");
       return;
     }
 
-    if (
-      user.role === (role || undefined)
-    ) {
+    if (user.role === (role || undefined)) {
       res.status(304).json("Hech bir deyishiklik yoxdur");
       return;
     }
@@ -203,17 +185,17 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error("Error sending email: ", error);
-       res.status(500).json({
+        res.status(500).json({
           message: error.message,
           error,
         });
       } else {
         console.log("Email sent: ", info);
-       res.json({ message: "Check your email" });
+        res.json({ message: "Check your email" });
       }
     });
 
-   // res.status(201).json({ updatedData });
+    // res.status(201).json({ updatedData });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -230,7 +212,7 @@ const userDelete = async (req: Request, res: Response, next: NextFunction) => {
 
     if (!deleteUser) {
       res.status(401).json({ message: "Unauthorized" });
-         return;
+      return;
     }
 
     await User.softRemove(deleteUser);
@@ -251,7 +233,7 @@ const adminList = async (req: Request, res: Response, next: NextFunction) => {
 
     const before_page = (page - 1) * limit;
     const [list, total] = await User.findAndCount({
-      where:{ role: ERoleType.ADMIN },
+      where: { role: ERoleType.ADMIN },
       skip: before_page,
       take: limit,
     });
@@ -279,7 +261,7 @@ const userList = async (req: Request, res: Response, next: NextFunction) => {
     const limit = Number(req.query.limit) || 5;
 
     const before_page = (page - 1) * limit;
-    const [ list, total] = await User.findAndCount({
+    const [list, total] = await User.findAndCount({
       where: { role: In([ERoleType.COMPANY, ERoleType.USER]) },
       skip: before_page,
       take: limit,
@@ -306,27 +288,30 @@ const RoleList = async (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json(ERoleType);
 };
 
-const createPremiumPackage = async (req: Request, res: Response, next: NextFunction) => {
+const createPremiumPackage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { name, monthly_price, annual_price } = req.body;
 
     const newData = await Package.create({
       name,
       monthly_price,
-      annual_price
-    }).save()
+      annual_price,
+    }).save();
 
     res.status(201).json({
-      data: newData
-    })
-
+      data: newData,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
       error: error instanceof Error ? error.message : error,
     });
   }
-}
+};
 
 export const AdminController = () => ({
   userCreate,
@@ -335,5 +320,5 @@ export const AdminController = () => ({
   adminList,
   userList,
   RoleList,
-  createPremiumPackage
+  createPremiumPackage,
 });

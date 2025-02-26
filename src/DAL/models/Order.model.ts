@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne } from "typeorm";
 import { User } from "./User.model";
-import { OrderStatus, SubscriptionType } from "../../Core/app/enums";
+import { EOrderStatus, ESubscriptionType } from "../../Core/app/enums";
 import { CommonEntity } from "./Common.model";
 import { Package } from "./Package.model";
 
@@ -12,11 +12,11 @@ export class Order extends CommonEntity {
   @Column({ type: "varchar", length: 10, default: "USD" })
   currency: string;
 
-  @Column({ type: "enum", enum: OrderStatus, default: OrderStatus.PENDING })
-  status: OrderStatus;
+  @Column({ type: "enum", enum: EOrderStatus, default: EOrderStatus.PENDING })
+  status: EOrderStatus;
 
-  @Column({ type: "enum", enum: SubscriptionType })
-  subscription_type: SubscriptionType;
+  @Column({ type: "enum", enum: ESubscriptionType })
+  subscription_type: ESubscriptionType;
 
   @Column({ type: "timestamp", nullable: true })
   expires_at: Date;

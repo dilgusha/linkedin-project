@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { User } from "./User.model";
 import { CommonEntity } from "./Common.model";
-import { ConnectionStatus } from "../../Core/app/enums";
+import { EConnectionStatus } from "../../Core/app/enums";
 
 @Entity({ name: "connections" })
 export class Connection extends CommonEntity {
@@ -25,8 +25,8 @@ export class Connection extends CommonEntity {
 
   @Column({
     type: "enum",
-    enum: ConnectionStatus,
-    default: ConnectionStatus.PENDING,
+    enum: EConnectionStatus,
+    default: EConnectionStatus.PENDING,
   })
-  status: ConnectionStatus;
+  status: EConnectionStatus;
 }

@@ -27,11 +27,11 @@ export class CreateEducationDTO {
   faculty: string;
 
   @IsDefined()
-  // @IsDate()
+  @IsDate()
   startDate: Date;
 
   @IsDefined()
-  // @IsDate()
+  @IsDate()
   endDate: Date;
 }
 
@@ -53,11 +53,10 @@ export class EditEducationDTO {
   faculty: string;
 
   @IsOptional()
-  // @IsDate()
-  // @Type(() => Date)
+  @IsDate()
   startDate: Date;
 
   @IsOptional()
-  // @IsDate()
+  @IsDate()
   endDate: Date;
 }

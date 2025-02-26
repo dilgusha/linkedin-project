@@ -24,8 +24,8 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     dto.schoolName = schoolName;
     dto.degree = degree;
     dto.faculty = faculty;
-    dto.startDate = startDate;
-    dto.endDate = endDate;
+    dto.startDate = new Date(startDate);
+    dto.endDate = new Date(endDate);
 
     const errors = await validate(dto);
     if (errors.length > 0) {
@@ -91,8 +91,8 @@ const editEducation = async (req: AuthRequest, res: Response) => {
     dto.schoolName = schoolName;
     dto.degree = degree;
     dto.faculty = faculty;
-    dto.startDate = startDate;
-    dto.endDate = endDate;
+    dto.startDate = new Date(startDate);
+    dto.endDate = new Date(endDate);
 
     const errors = await validate(dto);
 

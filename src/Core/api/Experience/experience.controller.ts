@@ -13,7 +13,7 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
-         return;
+      return;
     }
 
     const { category_ids, company, location, startDate, endDate, description } =
@@ -34,8 +34,8 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     dto.categories = category_list;
     dto.company = company;
     dto.location = location;
-    dto.startDate = startDate;
-    dto.endDate = endDate;
+    dto.startDate = new Date(startDate);
+    dto.endDate = new Date(endDate);
     dto.description = description;
 
     const errors = await validate(dto);
@@ -177,39 +177,43 @@ const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
   }
 };
 
-const deleteExperience = async(req:AuthRequest,res:Response,next:NextFunction)=>{
-  try{
-    const user=req.user
-    if(!user){
-      res.status(404).json ("user not found")
-      return
+const deleteExperience = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(404).json("user not found");
+      return;
     }
 
-  const experience_id =Number(req.params)
-  if(!experience_id){
-    res.status(400).json("id is required")
+    const experience_id = Number(req.params);
+    if (!experience_id) {
+      res.status(400).json("id is required");
+    }
+    const experience = await Experience.findOne({
+      where: { id: experience_id },
+      relations: ["user"], //?
+    });
+    if (!experience) {
+      res.status(404).json({ message: "experience not found" });
+      return;
+    }
+    if (experience.user_id !== user.id) {
+      res.status(403).json("You cannot this operation");
+      return;
+    }
+    await Experience.softRemove(experience);
+    res.status(204).json({ message: "experience deleted succesfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+      error,
+    });
   }
-  const experience =await Experience.findOne({
-    where:{id:experience_id},
-    relations:["user"]//?
-  })
-  if(!experience){
-    res.status(404).json({message:"experience not found"})
-    return
-  }
-  if(experience.user_id !== user.id){
-    res.status(403).json("You cannot this operation")
-    return
-  }
-  await Experience.softRemove(experience)
-  res.status(204).json({message:"experience deleted succesfully"})
-}catch(error){
-  res.status(500).json({
-    message:"Internal server error",
-    error,
-  })
-}
-}
+};
 
 export const ExperinceController = () => ({
   create,

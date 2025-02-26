@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsDate,
   IsDefined,
   IsEmail,
   IsEnum,
@@ -39,8 +40,7 @@ export class CreateUserByAdminDTO {
   password: string;
 
   @IsOptional()
-  // @IsDate()
-  // @Type(() => Date)
+  @IsDate()
   birthdate: Date;
 
   @IsOptional()

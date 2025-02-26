@@ -41,8 +41,7 @@ export class EditUserDTO {
   companyName: string;
 
   @IsOptional()
-  // @IsDate()
-  // @Type(() => Date)
+  @IsDate()
   birthdate: Date;
 
   @IsOptional()

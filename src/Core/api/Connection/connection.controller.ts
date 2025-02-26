@@ -2,9 +2,8 @@ import { Response } from "express";
 import { AuthRequest } from "../../../types";
 import { User } from "../../../DAL/models/User.model";
 import { Connection } from "../../../DAL/models/Connection.model";
-import { ConnectionStatus } from "../../app/enums";
+import { EConnectionStatus } from "../../app/enums";
 import { In } from "typeorm";
-import { errorMessages } from "../../app/helpers";
 
 const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
   try {
@@ -36,7 +35,7 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
       where: {
         requester_id: In([requester.id, receiver.id]),
         receiver_id: In([requester.id, receiver.id]),
-        status: In([ConnectionStatus.PENDING, ConnectionStatus.ACCEPTED]),
+        status: In([EConnectionStatus.PENDING, EConnectionStatus.ACCEPTED]),
       },
       relations: ["requester", "receiver"],
     });
@@ -49,7 +48,7 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
     const connection = Connection.create({
       requester_id: requester.id,
       receiver_id: receiver.id,
-      status: ConnectionStatus.PENDING,
+      status: EConnectionStatus.PENDING,
     });
 
     await connection.save();
@@ -84,12 +83,12 @@ const acceptConnection = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    if (connection.status !== ConnectionStatus.PENDING) {
+    if (connection.status !== EConnectionStatus.PENDING) {
       res.status(404).json("Bele bir elaqe isteyi yoxdur");
       return;
     }
 
-    connection.status = ConnectionStatus.ACCEPTED;
+    connection.status = EConnectionStatus.ACCEPTED;
     await connection.save();
 
     res.status(200).json({ message: "Connection accepted", connection });
@@ -117,7 +116,7 @@ const rejectConnection = async (req: AuthRequest, res: Response) => {
       where: {
         id: connectionId,
         receiver_id: receiver.id,
-        status: ConnectionStatus.PENDING,
+        status: EConnectionStatus.PENDING,
       },
     });
 
@@ -126,7 +125,7 @@ const rejectConnection = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    connection.status = ConnectionStatus.REJECTED;
+    connection.status = EConnectionStatus.REJECTED;
     await connection.save();
 
     res.status(204).json({ message: "Connection rejected" });
@@ -149,7 +148,7 @@ const list = async (req: AuthRequest, res: Response) => {
 
     const before_page = (page - 1) * limit;
     const [list, total] = await Connection.findAndCount({
-      where: { receiver_id: receiver.id, status: ConnectionStatus.PENDING },
+      where: { receiver_id: receiver.id, status: EConnectionStatus.PENDING },
       skip: before_page,
       take: limit,
       relations: ["requester"],

@@ -1,18 +1,16 @@
 import { NextFunction, Response } from "express";
 import { validate } from "class-validator";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { User } from "../../../DAL/models/User.model";
 import { AuthRequest } from "../../../types";
 import { EditUserDTO } from "./user.dto";
-import { ConnectionStatus, ERoleType } from "../../app/enums";
+import { EConnectionStatus, ERoleType } from "../../app/enums";
 import { Vacancy } from "../../../DAL/models/Vacancy.model";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Connection } from "../../../DAL/models/Connection.model";
 
-const userEdit = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const userEdit = async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
 
@@ -28,7 +26,6 @@ const userEdit = async (
       surname,
       gender,
       email,
-      password,
       birthdate,
       phone,
       about,
@@ -41,8 +38,7 @@ const userEdit = async (
     dto.surname = surname;
     dto.gender = gender;
     dto.email = email;
-    dto.password = password;
-    dto.birthdate = birthdate;
+    dto.birthdate = new Date(birthdate);
     dto.phone = phone;
     dto.about = about;
     dto.isVisibility = isVisibility;
@@ -60,7 +56,6 @@ const userEdit = async (
       surname,
       gender,
       email,
-      password,
       birthdate,
       phone,
       about,
@@ -83,7 +78,58 @@ const userEdit = async (
     });
   } catch (error) {
     res.status(500).json({
-      message: "An error occurred while update the book",
+      message: "An error occurred while update the user",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
+const passwordEdit = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const id = user.id;
+    const { password } = req.body;
+
+    const isSamePassword = await bcrypt.compare(password, user.password);
+    if (isSamePassword) {
+      res.status(400).json({ message: "New password must be different from the current password" });
+      return;
+    }
+
+    const dto = new EditUserDTO();
+    dto.password = password;
+
+    const errors = await validate(dto);
+
+    if (errors.length > 0) {
+      res.status(422).json(formatErrors(errors));
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.update(id, {
+      password: hashedPassword,
+    });
+
+    const updatedData = await User.findOne({
+      where: { id },
+      select: ["id", "name", "surname", "email", "updated_at"],
+    });
+
+    res.json({
+      message: "Password updated successfully",
+      data: updatedData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "An error occurred while updating the password",
       error: error instanceof Error ? error.message : error,
     });
   }
@@ -169,8 +215,8 @@ const userConnections = async (req: AuthRequest, res: Response) => {
     const before_page = (page - 1) * limit;
     const [list, total] = await Connection.findAndCount({
       where: [
-        { requester_id: user.id, status: ConnectionStatus.ACCEPTED }, // User request göndərib
-        { receiver_id: user.id, status: ConnectionStatus.ACCEPTED }, // User request qəbul edib
+        { requester_id: user.id, status: EConnectionStatus.ACCEPTED },
+        { receiver_id: user.id, status: EConnectionStatus.ACCEPTED },
       ],
       skip: before_page,
       take: limit,
@@ -211,23 +257,10 @@ const userConnections = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const applyPremium = async (req: AuthRequest, res: Response) => {
-  try {
-
-    //1.create order
-    //2.request to payment system to get payment url,
-    //3.redirect to payment url
-    //4.payment system will redirect to our site with payment status
-
-  } catch (error) {
-
-  }
-}
-
 export const UserController = () => ({
   userEdit,
+  passwordEdit,
   userDelete,
   applyVacancy,
   userConnections,
-  applyPremium
 });

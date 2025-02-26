@@ -19,20 +19,20 @@ export enum ERoleType {
     OTHER = "Other",
   }
 
-  export enum ConnectionStatus {
+  export enum EConnectionStatus {
     PENDING = "PENDING",
     ACCEPTED = "ACCEPTED",
     REJECTED = "REJECTED",
   }
 
-  export enum OrderStatus {
+  export enum EOrderStatus {
     PENDING = "pending",
     PAID = "paid",
     FAILED = "failed",
     CANCELLED = "cancelled",
   }
 
-  export enum SubscriptionType {
+  export enum ESubscriptionType {
     MONTHLY = "monthly",
     YEARLY = "yearly",
 }

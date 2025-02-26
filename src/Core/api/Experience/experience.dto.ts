@@ -26,13 +26,11 @@ export class CreateExperienceDTO {
   location: string;
 
   @IsDefined()
-  // @IsDate()
-  // @Type(() => Date)
+  @IsDate()
   startDate: Date;
 
   @IsDefined()
-  // @IsDate()
-  // @Type(() => Date)
+  @IsDate()
   endDate: Date;
 
   @IsOptional()

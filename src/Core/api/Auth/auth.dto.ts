@@ -40,8 +40,7 @@ export class CreateUserDTO {
   password: string;
 
   @IsOptional()
-  // @IsDate()
-  // @Type(() => Date) 
+  @IsDate()
   birthdate: Date;
 
   @IsOptional()

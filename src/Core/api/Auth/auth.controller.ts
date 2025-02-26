@@ -40,15 +40,13 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    const newPassword = await bcrypt.hash(password, 10);
-
     const dto = new CreateUserDTO();
     dto.name = name;
     dto.surname = surname;
     dto.gender = gender;
     dto.email = email;
     dto.password = password;
-    dto.birthdate = birthdate;
+    dto.birthdate = new Date(birthdate);
     dto.role = role;
     dto.companyName = companyName;
     dto.avatar_path = avatar_path;
@@ -62,6 +60,8 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
       res.status(422).json(formatErrors(errors));
       return;
     }
+
+    const newPassword = await bcrypt.hash(password, 10);
 
     const newUser = User.create({
       name,
@@ -142,7 +142,7 @@ const checkEmail = async (req: AuthRequest, res: Response) => {
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
-         return;
+      return;
     }
     const email = user.email;
 
@@ -196,7 +196,7 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
-         return;
+      return;
     }
     console.log(user.isVerified);
     if (user.isVerified === true) {
@@ -211,7 +211,7 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    if (user.verifyExpiredIn && (user.verifyExpiredIn.getTime() < Date.now())) {
+    if (user.verifyExpiredIn && user.verifyExpiredIn.getTime() < Date.now()) {
       res.status(400).json("artıq vaxt bitib, yenidən cəhd edin");
       return;
     }
@@ -243,7 +243,7 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
 
   if (!user) {
     res.status(401).json({ message: "Unauthorized" });
-       return;
+    return;
   }
 
   const token = uuidv4();
@@ -273,11 +273,9 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
       res.status(500).json({ message: "Error sending email", error });
       return;
     }
-    res
-      .status(200)
-      .json({
-        message: "Password reset email sent successfully.Check your email",
-      });
+    res.status(200).json({
+      message: "Password reset email sent successfully.Check your email",
+    });
   });
 };
 
@@ -333,7 +331,7 @@ const aboutMe = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const user = req.user;
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
-         return;
+      return;
     }
 
     const data = await User.findOne({
@@ -351,7 +349,6 @@ const aboutMe = async (req: AuthRequest, res: Response, next: NextFunction) => {
         "created_at",
       ],
     });
-  
 
     res.status(200).json(data);
   } catch (error) {
@@ -369,5 +366,5 @@ export const AuthController = () => ({
   CreatePass,
   checkEmail,
   verifyEmail,
-  aboutMe
+  aboutMe,
 });
