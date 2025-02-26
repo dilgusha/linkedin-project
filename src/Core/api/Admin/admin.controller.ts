@@ -369,6 +369,28 @@ const updatePremiumPackage = async (req: Request, res: Response) => {
   }
 };
 
+const deletePremiumPackage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const deletePackage = await Package.findOne({
+      where: { id: Number(req.params.id) },
+    });
+
+    if (!deletePackage) {
+      res.status(404).json({ message: "Package not found!" });
+      return;
+    }
+
+    await Package.softRemove(deletePackage);
+
+    res.status(204).json({ message: "Package uğurla silindi!" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
 export const AdminController = () => ({
   userCreate,
   userEdit,
@@ -377,5 +399,6 @@ export const AdminController = () => ({
   userList,
   RoleList,
   createPremiumPackage,
-  updatePremiumPackage
+  updatePremiumPackage,
+  deletePremiumPackage
 });
