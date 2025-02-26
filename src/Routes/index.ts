@@ -24,7 +24,7 @@ v1Routes.use("/vacancy",useAuth, roleCheck([ERoleType.COMPANY]), vacancyRoutes);
 v1Routes.use("/post", useAuth, postRoutes);
 v1Routes.use("/category", useAuth, roleCheck([ERoleType.ADMIN]), categoryRoutes);
 v1Routes.use("/education", useAuth, educationRoutes);
-v1Routes.use("/experience", experienceRoutes);
+v1Routes.use("/experience", useAuth, experienceRoutes);
 v1Routes.use("/comment", useAuth, commentRoutes);
 v1Routes.use("/connection",  useAuth, connectionRoutes);
 v1Routes.use("/message", messageRoutes);
