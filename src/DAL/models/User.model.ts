@@ -6,6 +6,7 @@ import { Connection } from "./Connection.model";
 import { Vacancy } from "./Vacancy.model";
 import { CommonEntity } from "./Common.model";
 import { EGenderType, ERoleType } from "../../Core/app/enums";
+import { Order } from "./Order.model";
 
 @Entity({ name: "users" })
 @Unique(["phone"]) 
@@ -101,4 +102,7 @@ export class User extends CommonEntity {
     }
   )
   appliedVacancies: Vacancy[];
+
+  @OneToMany(() => Order, (order) => order.user, { onDelete: "CASCADE", cascade: true })
+  orders: Order;
 }

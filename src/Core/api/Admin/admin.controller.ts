@@ -8,6 +8,7 @@ import { CreateUserByAdminDTO, EditUserByAdminDTO } from "./admin.dto";
 import { In } from "typeorm";
 import { ERoleType } from "../../app/enums"; 
 import { formatErrors } from "../../middlewares/error.middleware";
+import { Package } from "../../../DAL/models/Package.model";
 
 const userCreate = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -305,6 +306,25 @@ const RoleList = async (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json(ERoleType);
 };
 
+const createPremiumPackage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, monthly_price, annual_price } = req.body;
+
+    const newData = await Package.create({
+      name,
+      monthly_price,
+      annual_price
+    }).save()
+
+    res.json({
+      data: newData
+    })
+
+  } catch (error) {
+
+  }
+}
+
 export const AdminController = () => ({
   userCreate,
   userEdit,
@@ -312,4 +332,5 @@ export const AdminController = () => ({
   adminList,
   userList,
   RoleList,
+  createPremiumPackage
 });

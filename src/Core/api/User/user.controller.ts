@@ -211,9 +211,23 @@ const userConnections = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const applyPremium = async (req: AuthRequest, res: Response) => {
+  try {
+
+    //1.create order
+    //2.request to payment system to get payment url,
+    //3.redirect to payment url
+    //4.payment system will redirect to our site with payment status
+
+  } catch (error) {
+
+  }
+}
+
 export const UserController = () => ({
   userEdit,
   userDelete,
   applyVacancy,
   userConnections,
+  applyPremium
 });

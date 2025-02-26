@@ -24,4 +24,11 @@ export enum ERoleType {
     ACCEPTED = "ACCEPTED",
     REJECTED = "REJECTED",
   }
+
+  export enum OrderStatus {
+    PENDING = "pending",
+    PAID = "paid",
+    FAILED = "failed",
+    CANCELLED = "cancelled",
+  }
   
