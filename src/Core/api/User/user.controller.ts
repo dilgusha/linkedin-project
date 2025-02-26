@@ -3,9 +3,11 @@ import { validate } from "class-validator";
 import { User } from "../../../DAL/models/User.model";
 import { AuthRequest } from "../../../types";
 import { EditUserDTO } from "./user.dto";
-import { ERoleType } from "../../app/enums";
+import { ConnectionStatus, ERoleType } from "../../app/enums";
 import { Vacancy } from "../../../DAL/models/Vacancy.model";
 import { formatErrors } from "../../middlewares/error.middleware";
+import { Connection } from "../../../DAL/models/Connection.model";
+import { In } from "typeorm";
 
 const userEdit = async (
   req: AuthRequest,
@@ -154,8 +156,65 @@ const applyVacancy = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const userConnections = async (req: AuthRequest, res: Response) => {
+  try {
+    const user =req.user;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+
+    if (!user) {
+      res.json("User not found!");
+      return;
+    }
+
+    const before_page = (page - 1) * limit;
+    const [list, total] = await Connection.findAndCount({
+  where: [
+    { requester_id: user.id, status: ConnectionStatus.ACCEPTED }, // User request göndərib
+    { receiver_id: user.id, status: ConnectionStatus.ACCEPTED }  // User request qəbul edib
+  ],
+      skip: before_page,
+      take: limit,
+      relations: ["requester", "receiver"],
+      select: {
+        id: true,
+        status: true,
+        created_at: true,
+        requester: {
+          id: true,
+          name: true,
+          surname: true,
+          avatar_path: true,
+        },
+        receiver: {
+          id: true,
+          name: true,
+          surname: true,
+          avatar_path: true,
+        }
+      },
+    });
+
+    res.status(200).json({
+      data: list,
+      pagination: {
+        total,
+        page,
+        items_on_page: list.length,
+        per_page: Math.ceil(Number(total) / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
 export const UserController = () => ({
   userEdit,
   userDelete,
   applyVacancy,
+  userConnections
 });
