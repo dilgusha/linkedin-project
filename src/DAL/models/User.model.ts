@@ -19,7 +19,7 @@ export class User extends CommonEntity {
   @Column({
     type: "enum",
     enum: EGenderType,
-    default: EGenderType.OTHER,
+    default: EGenderType.NULL,
   })
   gender: EGenderType;
 
@@ -30,13 +30,13 @@ export class User extends CommonEntity {
   password: string;
 
   @Column({ type: "int", nullable: true })
-  verifyCode: number;
+  verifyCode: number | null;
 
   @Column({ type: "boolean", default: false })
   isVerified: boolean;
 
   @Column({ type: "datetime", default: null })
-  verifyExpiredIn: Date;
+  verifyExpiredIn: Date | null;
 
   @Column({
     type: "enum",

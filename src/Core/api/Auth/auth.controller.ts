@@ -211,7 +211,7 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    if (user.verifyExpiredIn.getTime() < Date.now()) {
+    if (user.verifyExpiredIn && (user.verifyExpiredIn.getTime() < Date.now())) {
       res.status(400).json("artıq vaxt bitib, yenidən cəhd edin");
       return;
     }
@@ -221,11 +221,11 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    // await User.update(user.id, {
-    //   isVerified: null,
-    //   verifyCode: null,
-    //   verifyExpiredIn: null,
-    // });
+    await User.update(user.id, {
+      isVerified: true,
+      verifyCode: null,
+      verifyExpiredIn: null,
+    });
 
     res.json({ message: "Email verified successfully!" });
   } catch (error) {

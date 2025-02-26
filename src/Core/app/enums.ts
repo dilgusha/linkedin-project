@@ -7,7 +7,7 @@ export enum ERoleType {
   export enum EGenderType {
     MAN = "MAN",
     WOMAN = "WOMAN",
-    OTHER = "OTHER",
+    NULL = "Null",
   }
   
   export enum EDegreeType {

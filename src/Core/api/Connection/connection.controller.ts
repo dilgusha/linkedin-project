@@ -36,7 +36,7 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
       where: {
         requester_id: In([requester.id, receiver.id]),
         receiver_id: In([requester.id, receiver.id]),
-        status: ConnectionStatus.PENDING || ConnectionStatus.ACCEPTED,
+        status: In([ConnectionStatus.PENDING, ConnectionStatus.ACCEPTED]),
       },
       relations: ["requester", "receiver"],
     });
