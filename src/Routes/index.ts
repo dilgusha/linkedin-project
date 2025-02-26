@@ -14,6 +14,7 @@ import { authRoutes } from "../Core/api/Auth/auth.route";
 import { uploadRoutes } from "../Core/api/uploads/upload.route";
 import { roleCheck, useAuth } from "../Core/middlewares/auth.middleware";
 import { ERoleType } from "../Core/app/enums";
+import { orderRoutes } from "../Core/api/Order/order.route";
 
 export const v1Routes = Router();
 
@@ -30,3 +31,4 @@ v1Routes.use("/connection",  useAuth, connectionRoutes);
 v1Routes.use("/message", messageRoutes);
 v1Routes.use("/notification", notificationRoutes);
 v1Routes.use("/upload", uploadRoutes);
+v1Routes.use("/oder",useAuth, orderRoutes);

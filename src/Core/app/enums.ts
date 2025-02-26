@@ -31,4 +31,8 @@ export enum ERoleType {
     FAILED = "failed",
     CANCELLED = "cancelled",
   }
-  
+
+  export enum SubscriptionType {
+    MONTHLY = "monthly",
+    YEARLY = "yearly",
+}

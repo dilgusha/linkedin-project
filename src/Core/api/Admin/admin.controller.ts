@@ -316,12 +316,15 @@ const createPremiumPackage = async (req: Request, res: Response, next: NextFunct
       annual_price
     }).save()
 
-    res.json({
+    res.status(201).json({
       data: newData
     })
 
   } catch (error) {
-
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error instanceof Error ? error.message : error,
+    });
   }
 }
 

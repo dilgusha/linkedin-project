@@ -104,5 +104,5 @@ export class User extends CommonEntity {
   appliedVacancies: Vacancy[];
 
   @OneToMany(() => Order, (order) => order.user, { onDelete: "CASCADE", cascade: true })
-  orders: Order;
+  orders: Order[];
 }
