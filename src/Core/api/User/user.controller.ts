@@ -3,10 +3,12 @@ import { validate } from "class-validator";
 import { User } from "../../../DAL/models/User.model";
 import { AuthRequest } from "../../../types";
 import { EditUserDTO } from "./user.dto";
-import { ConnectionStatus, ERoleType } from "../../app/enums";
+import { ConnectionStatus, ERoleType, OrderStatus } from "../../app/enums";
 import { Vacancy } from "../../../DAL/models/Vacancy.model";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Connection } from "../../../DAL/models/Connection.model";
+import { Package } from "../../../DAL/models/Package.model";
+import { Order } from "../../../DAL/models/Order.model";
 
 const userEdit = async (
   req: AuthRequest,
@@ -215,6 +217,19 @@ const applyPremium = async (req: AuthRequest, res: Response) => {
   try {
 
     //1.create order
+    const user = req.user
+    const packageId: number = req.body
+    const selectedPackage = await Package.findOne({ where: { id: packageId } })
+    if (!selectedPackage) {
+      res.status(404).json({ message: "Package not found" })
+      return
+    }
+    const order = await Order.create({
+      user,
+      amount:selectedPackage.monthly_price,
+      package: selectedPackage,
+      status: OrderStatus.PENDING
+    }).save()
     //2.request to payment system to get payment url,
     //3.redirect to payment url
     //4.payment system will redirect to our site with payment status
