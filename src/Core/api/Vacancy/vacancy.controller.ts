@@ -102,26 +102,32 @@ const getByUser = async (
     res.status(500).json({ message: "Internal server error", error });
   }
 };
-const getAppliedVacancies = async (req: AuthRequest, res:Response, next: NextFunction) => {
-  const user = req.user
+
+const getAppliedVacancies = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
   if (!user) {
-    res.status(401).json("user tapilmadi")
-    return
+    res.status(401).json({ message: "Unauthorized" });
+    return;
   }
   try {
     const users = await User.find({
       where: { id: user.id },
       relations: ["appliedVacancies"],
-      select: ["name", "id", "surname","email"]
-    })
-    res.json(users)
+      select: ["name", "id", "surname", "email"],
+    });
+    res.json(users);
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
-}
+};
+
 export const VacancyController = () => ({
   create,
   deletee,
   getByUser,
-  getAppliedVacancies
+  getAppliedVacancies,
 });

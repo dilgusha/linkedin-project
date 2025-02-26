@@ -61,7 +61,7 @@ const editPost = async (
     const user = req.user;
 
     if (!user) {
-      res.json("User not found");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -80,7 +80,7 @@ const editPost = async (
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
+      res.status(422).json(formatErrors(errors));
       return;
     }
 
@@ -95,14 +95,14 @@ const editPost = async (
     }
 
     if (post.user_id !== user.id) {
-      res.json("Siz bu posta duzelish ede bilmezsiz");
+      res.status(403).json("Siz bu posta duzelish ede bilmezsiz");
       return;
     }
 
     const update = content !== post.content;
 
     if (!update) {
-      res.json({
+      res.status(304).json({
         message: "No changes detected, coment not updated.",
       });
       return;
@@ -229,7 +229,7 @@ const deletePost = async (
     const user = req.user;
 
     if (!user) {
-      res.json("User not found!");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -250,13 +250,13 @@ const deletePost = async (
     }
 
     if (post.user_id !== user.id) {
-      res.json("Siz bu postu sile bilmezsiz");
+      res.status(403).json("Siz bu postu sile bilmezsiz");
       return;
     }
 
     await Post.softRemove(post);
 
-    res.status(200).json({ message: "Post deleted successfully." });
+    res.status(204).json({ message: "Post deleted successfully." });
   } catch (error) {
     console.error("Error deleting post:", error);
     res.status(500).json("An error occurred while deleting the post.");
@@ -268,7 +268,7 @@ const getById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const post_id = Number(req.params.id);
 
     if (!post_id) {
-      res.json("Id is required");
+      res.status(400).json("Id is required");
       return;
     }
 
@@ -296,7 +296,7 @@ const getById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     });
 
     if (!post) {
-      res.status(401).json("Post is not found");
+      res.status(404).json("Post is not found");
       return;
     }
 
@@ -318,7 +318,7 @@ const userPosts = async (
     const limit = Number(req.query.limit) || 5;
 
     if (!user) {
-      res.status(401).json("User is not found");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 

@@ -30,13 +30,13 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     } = req.body;
 
     if (role === ERoleType.ADMIN) {
-      res.json("Error");
+      res.status(403).json("Error");
       return;
     }
 
     const user = await User.findOne({ where: { email: email } });
     if (user) {
-      res.status(400).json("Bu emaile uygun user artiq movcuddur");
+      res.status(409).json("Bu emaile uygun user artiq movcuddur");
       return;
     }
 
@@ -59,7 +59,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
+      res.status(422).json(formatErrors(errors));
       return;
     }
 
@@ -131,7 +131,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     expiresIn: "1d",
   });
 
-  res.json({
+  res.status(201).json({
     access_token: new_token,
   });
 };
@@ -141,13 +141,13 @@ const checkEmail = async (req: AuthRequest, res: Response) => {
     const user = req.user;
 
     if (!user) {
-      res.json("User not found;");
-      return;
+      res.status(401).json({ message: "Unauthorized" });
+         return;
     }
     const email = user.email;
 
     if (user.isVerified === true) {
-      res.json({ message: "Email is already verified" });
+      res.status(400).json({ message: "Email is already verified" });
       return;
     }
 
@@ -195,17 +195,17 @@ const verifyEmail = async (req: AuthRequest, res: Response) => {
     const { code } = req.body;
 
     if (!user) {
-      res.json("User not found;");
-      return;
+      res.status(401).json({ message: "Unauthorized" });
+         return;
     }
     console.log(user.isVerified);
     if (user.isVerified === true) {
-      res.json({ message: "Email is already verified" });
+      res.status(400).json({ message: "Email is already verified" });
       return;
     }
 
     if (!user.verifyCode) {
-      res.status(400).json({
+      res.status(404).json({
         message: "Verification code not found!",
       });
       return;
@@ -242,10 +242,8 @@ const ForgetPass = async (req: Request, res: Response, next: NextFunction) => {
   });
 
   if (!user) {
-    res.status(401).json({
-      message: "Belə bir istifadəçi yoxdur",
-    });
-    return;
+    res.status(401).json({ message: "Unauthorized" });
+       return;
   }
 
   const token = uuidv4();
@@ -296,7 +294,7 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   const errors = await validate(dto);
 
   if (errors.length > 0) {
-    res.status(400).json(formatErrors(errors));
+    res.status(422).json(formatErrors(errors));
     return;
   }
 
@@ -317,7 +315,7 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   const ValidPassword = await bcrypt.compare(newPassword, user.password);
 
   if (ValidPassword) {
-    res.json("Əvvəlki parolu yaza bilməzsiniz");
+    res.status(400).json("Əvvəlki parolu yaza bilməzsiniz");
     return;
   }
 
@@ -327,15 +325,15 @@ const CreatePass = async (req: Request, res: Response, next: NextFunction) => {
   user.passToken = "";
 
   await user.save();
-  res.send(`${user.email} mailinin password-ü yeniləndi`);
+  res.status(201).send(`${user.email} mailinin password-ü yeniləndi`);
 };
 
 const aboutMe = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
     if (!user) {
-      res.json("User not found!");
-      return
+      res.status(401).json({ message: "Unauthorized" });
+         return;
     }
 
     const data = await User.findOne({

@@ -7,7 +7,6 @@ import { ConnectionStatus, ERoleType } from "../../app/enums";
 import { Vacancy } from "../../../DAL/models/Vacancy.model";
 import { formatErrors } from "../../middlewares/error.middleware";
 import { Connection } from "../../../DAL/models/Connection.model";
-import { In } from "typeorm";
 
 const userEdit = async (
   req: AuthRequest,
@@ -18,7 +17,7 @@ const userEdit = async (
     const user = req.user;
 
     if (!user) {
-      res.json("User not found");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -52,7 +51,7 @@ const userEdit = async (
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
+      res.status(422).json(formatErrors(errors));
       return;
     }
 
@@ -95,13 +94,13 @@ const userDelete = async (req: AuthRequest, res: Response) => {
     const user = req.user;
 
     if (!user) {
-      res.json("Bele bir user yoxdur");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
     user.softRemove();
 
-    res.json({ message: "User uğurla silindi!" });
+    res.status(204).json({ message: "User uğurla silindi!" });
   } catch (error) {
     console.error("Error removing user:", error);
     res.status(500).json("An error occurred while removing the user.");
@@ -114,28 +113,28 @@ const applyVacancy = async (req: AuthRequest, res: Response) => {
     const { vacancy_id } = req.body;
 
     if (!user) {
-      res.json("User not found!");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
     const vacancy = await Vacancy.findOne({
       where: { id: vacancy_id },
-      select: ["appliedUsers"]
+      select: ["appliedUsers"],
     });
 
     if (!vacancy) {
-      res.json({ message: "Seçilmiş vakansiya tapılmadı" });
+      res.status(404).json({ message: "Seçilmiş vakansiya tapılmadı" });
       return;
     }
 
     const existingUser = await User.findOne({
       where: { id: user.id },
       relations: ["appliedVacancies"],
-      select: ["name", "surname", "email", "companyName", "about", "id"]
+      select: ["name", "surname", "email", "companyName", "about", "id"],
     });
-    
+
     if (!existingUser) {
-      res.json({ message: "User tapılmadı" });
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -148,7 +147,7 @@ const applyVacancy = async (req: AuthRequest, res: Response) => {
 
     existingUser.appliedVacancies.push(vacancy);
     await existingUser.save();
-    
+
     res.status(201).json({ message: "Müraciət uğurla tamamlandı." });
   } catch (error) {
     console.error("Error applying to vacancy:", error);
@@ -158,21 +157,21 @@ const applyVacancy = async (req: AuthRequest, res: Response) => {
 
 const userConnections = async (req: AuthRequest, res: Response) => {
   try {
-    const user =req.user;
+    const user = req.user;
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 5;
 
     if (!user) {
-      res.json("User not found!");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
     const before_page = (page - 1) * limit;
     const [list, total] = await Connection.findAndCount({
-  where: [
-    { requester_id: user.id, status: ConnectionStatus.ACCEPTED }, // User request göndərib
-    { receiver_id: user.id, status: ConnectionStatus.ACCEPTED }  // User request qəbul edib
-  ],
+      where: [
+        { requester_id: user.id, status: ConnectionStatus.ACCEPTED }, // User request göndərib
+        { receiver_id: user.id, status: ConnectionStatus.ACCEPTED }, // User request qəbul edib
+      ],
       skip: before_page,
       take: limit,
       relations: ["requester", "receiver"],
@@ -191,7 +190,7 @@ const userConnections = async (req: AuthRequest, res: Response) => {
           name: true,
           surname: true,
           avatar_path: true,
-        }
+        },
       },
     });
 
@@ -216,5 +215,5 @@ export const UserController = () => ({
   userEdit,
   userDelete,
   applyVacancy,
-  userConnections
+  userConnections,
 });

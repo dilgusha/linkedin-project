@@ -12,7 +12,7 @@ const create = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const user = req.user;
 
     if (!user) {
-      res.json("User not found");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -73,7 +73,7 @@ const editEducation = async (req: AuthRequest, res: Response) => {
     const user = req.user;
 
     if (!user) {
-      res.json("User not found");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -97,7 +97,7 @@ const editEducation = async (req: AuthRequest, res: Response) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
+      res.status(422).json(formatErrors(errors));
       return;
     }
 
@@ -112,7 +112,7 @@ const editEducation = async (req: AuthRequest, res: Response) => {
     }
 
     if (education.user_id !== user.id) {
-      res.json("Siz bu educationa duzelish ede bilmezsiz");
+      res.status(403).json("Siz bu educationa duzelish ede bilmezsiz");
       return;
     }
 
@@ -122,7 +122,7 @@ const editEducation = async (req: AuthRequest, res: Response) => {
       faculty,
       imageUrl: image?.filename,
       startDate,
-      endDate
+      endDate,
     });
 
     const updatedData = await Education.findOne({
@@ -157,28 +157,32 @@ const editEducation = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const getUserEducation = async(req:AuthRequest,res:Response,next:NextFunction)=>{
-  try{
-    const user = req.user
-    if(!user){
-      res.json("User not found")
-      return
+const getUserEducation = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
-    const getEducation =await Education.findOne({
-      where:{user_id:user.id}
-    })
-    if(!getEducation){
-      res.json("Education not found")
-      return
+    const getEducation = await Education.findOne({
+      where: { user_id: user.id },
+    });
+    if (!getEducation) {
+      res.status(404).json("Education not found");
+      return;
     }
-    res.status(200).json(getEducation)
-}catch(error){
-  res.status(500).json({
-    message:"Internal server error",
-    error,
-  })
-}
-}
+    res.status(200).json(getEducation);
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+      error,
+    });
+  }
+};
 
 const deleteEducation = async (
   req: AuthRequest,
@@ -187,10 +191,10 @@ const deleteEducation = async (
 ) => {
   try {
     const user = req.user;
-    const  educationId  = Number(req.params.id);
+    const educationId = Number(req.params.id);
 
     if (!user) {
-      res.json("User not found");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -217,7 +221,7 @@ const deleteEducation = async (
 
     await education.remove();
 
-    res.status(200).json({ message: "Education record deleted successfully" });
+    res.status(204).json({ message: "Education record deleted successfully" });
   } catch (error) {
     console.log("Error deleting education record:", error);
     res.status(500).json({ message: "Internal server error" });

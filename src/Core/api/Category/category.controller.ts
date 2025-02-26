@@ -33,7 +33,7 @@ const updatedCategory = async(req:AuthRequest,res:Response,next:NextFunction)=>{
   try{
   const category_id =Number(req.params)
   if(!category_id){
-    res.json("Id is required")
+    res.status(400).json("Id is required")
     return
   }
   
@@ -44,7 +44,7 @@ const updatedCategory = async(req:AuthRequest,res:Response,next:NextFunction)=>{
 
   const errors = await validate(dto)
   if(errors.length > 0){
-    res.status(400).json(formatErrors(errors))
+    res.status(422).json(formatErrors(errors))
     return
   }
   const category =await Category.findOne({
@@ -98,7 +98,7 @@ const deletee = async (req: Request, res: Response, next: NextFunction) => {
 
     await category.remove();
 
-    res.status(200).json({ message: "Category deleted successfully" });
+    res.status(204).json({ message: "Category deleted successfully" });
   } catch (error) {
     res.status(500).json({
       message: "Internal Server Error",

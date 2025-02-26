@@ -10,7 +10,7 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
   try {
     const requester = req.user;
     if (!requester) {
-      res.json("User not found");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -28,13 +28,13 @@ const sendConnectionRequest = async (req: AuthRequest, res: Response) => {
 
     const receiver = await User.findOne({ where: { id: receiverId } });
     if (!receiver) {
-      res.status(404).json({ message: "User not found" });
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
     const existingConnection = await Connection.findOne({
       where: {
-        requester_id: In([requester.id, receiver.id]), 
+        requester_id: In([requester.id, receiver.id]),
         receiver_id: In([requester.id, receiver.id]),
         status: ConnectionStatus.PENDING || ConnectionStatus.ACCEPTED,
       },
@@ -66,12 +66,12 @@ const acceptConnection = async (req: AuthRequest, res: Response) => {
     const connectionId = Number(req.params.id);
 
     if (!receiver) {
-      res.json("User not found!");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
     if (!connectionId) {
-      res.json("Connection id not found!");
+      res.status(400).json("Connection id is required!");
       return;
     }
 
@@ -85,7 +85,7 @@ const acceptConnection = async (req: AuthRequest, res: Response) => {
     }
 
     if (connection.status !== ConnectionStatus.PENDING) {
-      res.json("Bele bir elaqe isteyi yoxdur");
+      res.status(404).json("Bele bir elaqe isteyi yoxdur");
       return;
     }
 
@@ -104,12 +104,12 @@ const rejectConnection = async (req: AuthRequest, res: Response) => {
     const { connectionId } = req.body;
 
     if (!receiver) {
-      res.json("User not found!");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
     if (!connectionId) {
-      res.json("Connection id not found!");
+      res.status(400).json("Connection id is required!");
       return;
     }
 
@@ -129,7 +129,7 @@ const rejectConnection = async (req: AuthRequest, res: Response) => {
     connection.status = ConnectionStatus.REJECTED;
     await connection.save();
 
-    res.status(200).json({ message: "Connection rejected", connection });
+    res.status(204).json({ message: "Connection rejected" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -143,7 +143,7 @@ const list = async (req: AuthRequest, res: Response) => {
     const receiver = req.user;
 
     if (!receiver) {
-      res.json("User not found!");
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 

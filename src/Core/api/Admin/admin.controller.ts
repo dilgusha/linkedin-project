@@ -33,7 +33,7 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
     const user = await User.findOne({ where: { email: email } });
 
     if (user) {
-      res.json("Bu emaile uygun user artiq movcuddur");
+      res.status(409).json("Bu emaile uygun user artiq movcuddur");
       return;
     }
 
@@ -55,7 +55,7 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
+      res.status(422).json(formatErrors(errors));
       return
     }
 
@@ -108,7 +108,7 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        res.json("Error sending email");
+        res.status(500).json("Error sending email");
         return;
       } else {
         console.log("Email sent: ", info);
@@ -142,9 +142,9 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (!user) {
-      res.json("Bele bir user movcud deyil");
-      return;
-    }
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
 
     if (role && !(role in ERoleType)) {
       const error = new Error(`Invalid role! Allowed roles: ${ERoleType}`);
@@ -152,14 +152,14 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     if ( !role) {
-      res.json("Hech bir deyishiklik yoxdur");
+      res.status(304).json("Hech bir deyishiklik yoxdur");
       return;
     }
 
     if (
       user.role === (role || undefined)
     ) {
-      res.json("Hech bir deyishiklik yoxdur");
+      res.status(304).json("Hech bir deyishiklik yoxdur");
       return;
     }
 
@@ -169,7 +169,7 @@ const userEdit = async (req: Request, res: Response, next: NextFunction) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
+      res.status(422).json(formatErrors(errors));
       return;
     }
     await User.update(id, {
@@ -228,13 +228,13 @@ const userDelete = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     if (!deleteUser) {
-      res.json("Bele bir user yoxdur");
-      return;
+      res.status(401).json({ message: "Unauthorized" });
+         return;
     }
 
     await User.softRemove(deleteUser);
 
-    res.json({ message: "User uğurla silindi!" });
+    res.status(204).json({ message: "User uğurla silindi!" });
   } catch (error) {
     res.status(500).json({
       message: "Something went wrong",
@@ -302,7 +302,7 @@ const userList = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const RoleList = async (req: Request, res: Response, next: NextFunction) => {
-  res.json(ERoleType);
+  res.status(200).json(ERoleType);
 };
 
 export const AdminController = () => ({

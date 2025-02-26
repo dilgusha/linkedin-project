@@ -64,8 +64,8 @@ const editComment = async (req: AuthRequest, res: Response) => {
     const user = req.user;
 
     if (!user) {
-      res.json("User not found");
-      return;
+      res.status(401).json({ message: "Unauthorized" });
+         return;
     }
 
     const comment_id = Number(req.params.id);
@@ -83,7 +83,7 @@ const editComment = async (req: AuthRequest, res: Response) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      res.status(400).json(formatErrors(errors));
+      res.status(422).json(formatErrors(errors));
       return;
     }
 
@@ -98,7 +98,7 @@ const editComment = async (req: AuthRequest, res: Response) => {
     }
 
     if(comment.content === content){
-      res.json("Hech bir deyishiklik yoxdur")
+      res.status(304).json("Hech bir deyishiklik yoxdur")
       return
     }
 
@@ -127,7 +127,7 @@ const commentList = async (req: AuthRequest, res: Response, next: NextFunction) 
   try {
     const post_id =Number(req.params.id)
     if(!post_id){
-      res.json("Id is required")
+      res.status(400).json("Id is required")
       return
     }
 
@@ -136,7 +136,7 @@ const commentList = async (req: AuthRequest, res: Response, next: NextFunction) 
     });
 
     if(!post){
-      res.json("Post not found")
+      res.status(404).json("Post not found")
       return
     }
 
@@ -176,8 +176,8 @@ const deleteComment = async (
     const user = req.user;
 
     if (!user) {
-      res.json("User not found!");
-      return;
+      res.status(401).json({ message: "Unauthorized" });
+         return;
     }
 
     const comment_id = Number(req.params.id);
@@ -204,13 +204,13 @@ const deleteComment = async (
     const isCommentOwner = comment.user_id === user.id;
 
     if (!isCommentOwner && !isPostOwner) {
-      res.json("Siz bu commenti sile bilmezsiz");
+      res.status(403).json("Siz bu commenti sile bilmezsiz");
       return;
     }
 
     await Comment.softRemove(comment);
 
-    res.status(200).json({ message: "Comment deleted successfully." });
+    res.status(204).json({ message: "Comment deleted successfully." });
   } catch (error) {
     console.error("Error deleting post:", error);
     res.status(500).json("An error occurred while deleting the post.");
