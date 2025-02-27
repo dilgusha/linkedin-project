@@ -100,7 +100,7 @@ const acceptConnection = async (req: AuthRequest, res: Response) => {
 const rejectConnection = async (req: AuthRequest, res: Response) => {
   try {
     const receiver = req.user;
-    const { connectionId } = req.body;
+    const connectionId = Number(req.params.id);
 
     if (!receiver) {
       res.status(401).json({ message: "Unauthorized" });

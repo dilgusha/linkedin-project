@@ -43,6 +43,13 @@ const userCreate = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
+    const userPhone = await User.findOne({ where: { phone } });
+
+    if (userPhone) {
+      res.status(409).json("Bu nomreye uygun user artiq movcuddur");
+      return;
+    }
+
     const newPassword = await bcrypt.hash(password, 10);
 
     const dto = new CreateUserByAdminDTO();
@@ -297,6 +304,12 @@ const createPremiumPackage = async (req: Request, res: Response) => {
   try {
     const { name, monthly_price, annual_price } = req.body;
 
+    const premiumPackage = await Package.findOne({ where: { name } });
+
+    if (premiumPackage) {
+      res.status(409).json("You cannot create a package with the same name.");
+    }
+
     const dto = new CreatePremiumPackageDTO();
     dto.name = name;
     dto.monthly_price = monthly_price;
@@ -328,19 +341,28 @@ const updatePremiumPackage = async (req: Request, res: Response) => {
   try {
     const packageId = Number(req.params.id);
 
-    if(!packageId){
-        res.status(400).json({ message: "Package id is required!" });
-        return;
-      }
+    if (!packageId) {
+      res.status(400).json({ message: "Package id is required!" });
+      return;
+    }
 
-      const premiumPackage = await Package.findOne({ where: { id: packageId } })
+    const premiumPackage = await Package.findOne({ where: { id: packageId } });
 
-      if(!premiumPackage){
-        res.status(404).json({ message: "Package not found!" });
-        return;
-      }   
+    if (!premiumPackage) {
+      res.status(404).json({ message: "Package not found!" });
+      return;
+    }
 
     const { name, monthly_price, annual_price } = req.body;
+
+    if (
+      name === premiumPackage.name &&
+      monthly_price == premiumPackage.monthly_price &&
+      annual_price == premiumPackage.annual_price
+    ) {
+      res.status(400).json({ message: "No changes detected" });
+      return;
+    }
 
     const dto = new UpdatePremiumPackageDTO();
     dto.name = name;
@@ -354,7 +376,7 @@ const updatePremiumPackage = async (req: Request, res: Response) => {
       return;
     }
 
-    const updatePackage = await Package.update(packageId ,{
+    const updatePackage = await Package.update(packageId, {
       name,
       monthly_price,
       annual_price,
@@ -369,7 +391,7 @@ const updatePremiumPackage = async (req: Request, res: Response) => {
   }
 };
 
-const deletePremiumPackage = async (req: Request, res: Response, next: NextFunction) => {
+const deletePremiumPackage = async (req: Request, res: Response) => {
   try {
     const deletePackage = await Package.findOne({
       where: { id: Number(req.params.id) },
@@ -400,5 +422,5 @@ export const AdminController = () => ({
   RoleList,
   createPremiumPackage,
   updatePremiumPackage,
-  deletePremiumPackage
+  deletePremiumPackage,
 });

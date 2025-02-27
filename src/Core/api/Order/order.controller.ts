@@ -17,7 +17,8 @@ const createOrder = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const { packageId, subscriptionType } = req.body;
+    const { subscriptionType } = req.body;
+    const packageId = Number(req.params.id);
 
     if (!packageId) {
       res.status(400).json({ message: "Package id is required!" });
@@ -135,7 +136,12 @@ const finishOrder = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const subscriptionType = async (req: Request, res: Response) => {
+  res.status(200).json(ESubscriptionType);
+};
+
 export const OrderController = () => ({
   createOrder,
-  finishOrder
+  finishOrder,
+  subscriptionType,
 });

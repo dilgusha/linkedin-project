@@ -7,6 +7,7 @@ import {
   IsNumber,
   IsOptional,
   IsPhoneNumber,
+  IsPositive,
   IsString,
   Matches,
   MaxLength,
@@ -87,12 +88,12 @@ export class CreatePremiumPackageDTO {
 
   @IsDefined()
   @IsNumber()
-  @MinLength(1)
+  @IsPositive({ message: "Monthly price must be a positive number" })
   monthly_price: number;
 
   @IsDefined()
   @IsNumber()
-  @MinLength(1)
+  @IsPositive({ message: "Annual price must be a positive number" })
   annual_price: number;
 }
 
@@ -105,11 +106,11 @@ export class UpdatePremiumPackageDTO {
 
   @IsOptional()
   @IsNumber()
-  @MinLength(1)
+  @IsPositive({ message: "Monthly price must be a positive number" })
   monthly_price: number;
 
   @IsOptional()
   @IsNumber()
-  @MinLength(1)
+  @IsPositive({ message: "Annual price must be a positive number" })
   annual_price: number;
 }
