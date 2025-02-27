@@ -12,6 +12,8 @@ import { messageRoutes } from "../Core/api/Message/message.route";
 import { notificationRoutes } from "../Core/api/Notification/notification.route";
 import { authRoutes } from "../Core/api/Auth/auth.route";
 import { uploadRoutes } from "../Core/api/uploads/upload.route";
+import { orderRouters } from "../Core/api/PremiumAcount/Order/order.router";
+import { paymentRouters } from "../Core/api/PremiumAcount/payment.router";
 
 export const v1Routes = Router();
 
@@ -28,3 +30,5 @@ v1Routes.use("/connection", connectionRoutes);
 v1Routes.use("/message", messageRoutes);
 v1Routes.use("/notification", notificationRoutes);
 v1Routes.use("/upload", uploadRoutes);
+v1Routes.use('/order' , orderRouters);
+v1Routes.use('/payment' , paymentRouters);

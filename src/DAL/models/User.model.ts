@@ -6,6 +6,8 @@ import { Connection } from "./Connection.model";
 import { Vacancy } from "./Vacancy.model";
 import { CommonEntity } from "./Common.model";
 import { EGenderType, ERoleType } from "../../Core/app/enums";
+import { Payment } from "./Payment.model";
+import { Order } from "./Order.model";
 
 @Entity({ name: "users" })
 @Unique(["phone"]) 
@@ -95,4 +97,11 @@ export class User extends CommonEntity {
   @ManyToMany(() => Vacancy, (vacancy) => vacancy.appliedUsers)
   @JoinTable()
   appliedVacancies: Vacancy[];
+
+  @OneToMany(() => Payment , payment => payment.user , {onDelete : "CASCADE"})
+  payments : Payment[];
+
+  @OneToMany(() => Order , order => order.user , {onDelete : "CASCADE"})
+  orders : Order[];
 }
+  
